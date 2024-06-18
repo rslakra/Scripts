@@ -12,6 +12,7 @@ do
       echo "$entry"
       cd "$entry"
       git reset --hard
+      git config pull.ff only
       git pull
       cd ..
       echo
