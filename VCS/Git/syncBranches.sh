@@ -1,5 +1,5 @@
 #!/bin/bash
-#Author: Rohtash Lakra
+# Author: Rohtash Lakra
 #
 BRANCHES_HOME=$PWD
 echo

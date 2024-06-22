@@ -1,4 +1,4 @@
 #!/bin/bash
-#Author: Rohtash Lakra
+# Author: Rohtash Lakra
 git fetch --all --tags
 echo

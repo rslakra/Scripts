@@ -1,5 +1,5 @@
 #!/bin/bash
-#Author: Rohtash Lakra
+# Author: Rohtash Lakra
 # Tags the branch with given version and message.
 # git tag -a v1.4 -m "my version 1.4"
 version="$1"

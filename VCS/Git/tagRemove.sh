@@ -1,5 +1,5 @@
 #!/bin/bash
-#Author: Rohtash Lakra
+# Author: Rohtash Lakra
 echo
 echo "Delete local tag"
 echo "git tag -d $1"

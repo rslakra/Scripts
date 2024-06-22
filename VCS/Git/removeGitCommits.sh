@@ -1,5 +1,5 @@
 #!/bin/zsh
-#Author: Rohtash Lakra
+# Author: Rohtash Lakra
 #Deletes the commits up until a specific commit
 #https://articles.assembla.com/en/articles/2941346-how-to-delete-commits-from-a-branch-in-git
 #

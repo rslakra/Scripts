@@ -1,5 +1,5 @@
 #!/bin/bash
-#Author: Rohtash Lakra
+# Author: Rohtash Lakra
 # Generates the local links for the major scripts
 #
 export CUR_DIR="${PWD}"
