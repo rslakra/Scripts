@@ -1,4 +1,6 @@
 #!/bin/bash
 #Author: Rohtash Lakra
-git fetch --all --tags
 echo
+git pull --no-ff
+echo
+

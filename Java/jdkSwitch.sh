@@ -1,5 +1,5 @@
 #!/bin/bash
-# Author: Rohtash Lakra
+#Author: Rohtash Lakra
 # Switches the JDK version
 #jdkSwitch         #switches to latest java
 #jdkSwitch -v 8    #switches to java 8

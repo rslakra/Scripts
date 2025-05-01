@@ -1,5 +1,5 @@
 #!/bin/bash
-# Author: Rohtash Lakra
+#Author: Rohtash Lakra
 # Removes Quarantine Flag of the file.
 #
 clear

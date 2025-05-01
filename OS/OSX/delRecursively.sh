@@ -1,5 +1,5 @@
 #!/bin/bash
-# Author: Rohtash Lakra
+#Author: Rohtash Lakra
 # Removes the spam/unwanted file(s) recursively.
 # Usage:
 #   ./delRecursively

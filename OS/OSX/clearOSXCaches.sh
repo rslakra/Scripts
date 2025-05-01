@@ -1,5 +1,5 @@
 #!/bin/bash
-# Author: Rohtash Lakra
+#Author: Rohtash Lakra
 # Clear Screen
 #
 clear

@@ -1,6 +1,6 @@
 #!/bin/bash
 #Author: Rohtash Lakra
 echo
-git config --global --list --show-origin
+git commit --amend --reset-author --no-edit
 echo
 

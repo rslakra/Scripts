@@ -1,5 +1,5 @@
 #!/bin/bash
-# Author: Rohtash Lakra
+#Author: Rohtash Lakra
 # Copies the backup files into the local OS configs
 #
 cp -R .aws ~/.   

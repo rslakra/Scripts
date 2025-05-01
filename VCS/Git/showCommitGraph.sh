@@ -1,5 +1,5 @@
 #!/bin/bash
-# Author: Rohtash Lakra
+#Author: Rohtash Lakra
 git log --oneline --graph
 #git log --pretty=oneline
 #git log --pretty=format:"%h %s" --graph

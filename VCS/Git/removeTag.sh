@@ -1,5 +1,5 @@
 #!/bin/bash
-# Author: Rohtash Lakra
+#Author: Rohtash Lakra
 echo
 tagName=$1
 echo "Deleting local tag: ${tagName}"
