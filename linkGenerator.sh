@@ -2,6 +2,8 @@
 # Author: Rohtash Lakra
 # Generates the local links for the major scripts
 #
+
+# ----------------< Variables >----------------
 export CUR_DIR="${PWD}"
 export USER_HOME="${HOME}"
 export APPS_HOME="/Applications"

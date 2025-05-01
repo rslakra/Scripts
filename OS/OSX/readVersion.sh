@@ -1,4 +1,7 @@
 #!/bin/bash
+# Author: Rohtash Lakra
+# Reads the version from file.
+#
 vStr="Version:"
 bStr="Build:"
 filePath="assets/AppSupport.info"

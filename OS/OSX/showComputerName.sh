@@ -1,6 +1,6 @@
 #!/bin/bash
-# showComputerName.sh
-# This script is used to display computer name.
+# Author: Rohtash Lakra
+# Display Computer Name
 #
 clear
 echo 'Host Name:'

@@ -61,3 +61,18 @@ Thumbs.db
 *.mov
 *.wmv
 
+/**/.DS_Store
+/**/bin
+/**/classes
+/**/build
+/**/target
+/**/*.log
+/**/*.jar
+/**/.idea
+/**/*.zip
+/**/KeyPairs/
+/**/.metadata
+/**/node_modules
+/**/.log
+package-lock.json
+.mvn/

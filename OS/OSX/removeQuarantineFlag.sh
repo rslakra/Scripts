@@ -1,4 +1,7 @@
 #!/bin/bash
+# Author: Rohtash Lakra
+# Removes Quarantine Flag of the file.
+#
 clear
 echo
 #Validate the parameter provided or not.
