@@ -1,5 +1,5 @@
 #!/bin/zsh
-#Author: Rohtash Lakra
+# Author: Rohtash Lakra
 echo
 echo "Delete remote branch"
 echo "git push -d origin $1"

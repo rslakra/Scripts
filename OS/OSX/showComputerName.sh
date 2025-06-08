@@ -1,5 +1,5 @@
 #!/bin/bash
-#Author: Rohtash Lakra
+# Author: Rohtash Lakra
 # Display Computer Name
 #
 clear
