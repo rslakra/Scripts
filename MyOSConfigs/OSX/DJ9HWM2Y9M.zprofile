@@ -83,6 +83,14 @@ export RUBY_HOME="${HOMEBREW_OPT_DIR}/ruby"
 export LDFLAGS="-L${RUBY_HOME}/lib"
 #export CPPFLAGS="-I${RUBY_HOME}/include"
 
+# ----------------< Initialize Ruby Env >----------------
+if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
+
+
+# ----------------< iOS Configs >----------------
+# objc[81781]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.
+OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+
 
 # ----------------< Update PATH Variable >----------------
 OLD_PATH="${PATH}"
@@ -106,12 +114,5 @@ PATH="${PATH}:${OLD_PATH}"
 
 #echo $PATH
 export PATH
-
-
-# ----------------< Initialize Ruby Env >----------------
-if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
-
-# objc[81781]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.
-OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 
 
