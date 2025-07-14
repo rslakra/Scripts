@@ -16,15 +16,15 @@ do
       echo
       echo "Syncing [${pathEntry}] ..."
       echo
-      cd "$entry"
+      cd "${pathEntry}"
       git reset --hard
       for branch in $branches
       do
-        pathEntry="${WORKSPACE_DIR}/${entry}"
+#        pathEntry="${WORKSPACE_DIR}/${entry}"
         echo
         echo "Checking out [${branch}] ..."
         echo
-        cd "$entry"
+#        cd "$entry"
         git checkout "$branch"
         git reset --hard
         git config pull.ff only
@@ -32,7 +32,7 @@ do
         echo
       done
       git checkout develop
-      cd ..
+#      cd ..
       echo
   else
       echo "${pathEntry} is not a directory"
