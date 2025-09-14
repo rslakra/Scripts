@@ -57,7 +57,7 @@ ln -sf "${SCRIPTS_HOME}/JDK/jdkSwitch.sh" ~/jdkSwitch
 
 # ----------------<MyOSConfigs Links>----------------
 export MY_OS_CONFIGS="${SCRIPTS_HOME}/MyOSConfigs"
-ln -fs "${MY_OS_CONFIGS}/backUpLocalConfigs.sh" ~/backUpLocalConfigs
+ln -fs "${MY_OS_CONFIGS}/dotConfigs.sh" ~/dotConfigs
 
 # ----------------<OSX Links>----------------
 export OSX_DIR="${SCRIPTS_HOME}/OS/OSX"
