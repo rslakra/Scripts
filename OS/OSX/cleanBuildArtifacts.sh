@@ -20,7 +20,7 @@ usage() {
 }
 
 # files/folders to be removed
-defaultCleanupEntries=".DS_Store .idea .pyc .pyo __pycache__ build dist node_modules target venv"
+defaultCleanupEntries=".DS_Store .idea .mvn .pyc .pyo .svn .terraform .tmp .venv __pycache__ bower_components build dist node_modules target venv"
 # check which files/folders to remove
 if [[ -z "$1" ]]; then  # No Arguments Supplied
     for entry in $defaultCleanupEntries; do
