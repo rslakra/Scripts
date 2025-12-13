@@ -17,15 +17,10 @@
 #   --help                    Show this help message
 clear
 
-# Colors for output (optimized for white backgrounds)
-AQUA='\033[0;36m'        # Cyan - good contrast on white
-BLUEVIOLET='\033[0;35m'  # Magenta/Purple - good contrast on white
-BROWN='\033[0;33m'       # Yellow/Brown - visible on white
-RED='\033[0;31m'         # Red - excellent contrast on white
-DARKBLUE='\033[0;34m'    # Blue - good contrast on white
-GREEN='\033[0;32m'       # Green - good contrast on white
-INDIGO='\033[1;34m'      # Bright Blue - good contrast on white
-NC='\033[0m'             # No Color
+# Source colors configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPTS_HOME="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+source "${SCRIPTS_HOME}/colors.sh"
 
 # Usage function
 usage() {
