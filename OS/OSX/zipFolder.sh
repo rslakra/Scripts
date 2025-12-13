@@ -17,29 +17,32 @@
 #   --help                    Show this help message
 clear
 
-# Colors for output
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
+# Colors for output (optimized for white backgrounds)
+AQUA='\033[0;36m'        # Cyan - good contrast on white
+BLUEVIOLET='\033[0;35m'  # Magenta/Purple - good contrast on white
+BROWN='\033[0;33m'       # Yellow/Brown - visible on white
+RED='\033[0;31m'         # Red - excellent contrast on white
+DARKBLUE='\033[0;34m'    # Blue - good contrast on white
+GREEN='\033[0;32m'       # Green - good contrast on white
+INDIGO='\033[1;34m'      # Bright Blue - good contrast on white
+NC='\033[0m'             # No Color
 
 # Usage function
 usage() {
    echo
-   echo -e "${BLUE}Usage:${NC} ./zipFolder.sh [options] [folder_path] [output_path]"
+   echo -e "${DARKBLUE}Usage:${NC} ./zipFolder.sh [options] [folder_path] [output_path]"
    echo
-   echo -e "${YELLOW}Options:${NC}"
+   echo -e "${BROWN}Options:${NC}"
    echo "  --include-node-modules    Include node_modules folder (default: excluded)"
    echo "  --timestamp               Create timestamped version"
    echo "  --no-exclusions           Don't exclude common build/cache files"
    echo "  --help                    Show this help message"
    echo
-   echo -e "${YELLOW}Arguments:${NC}"
+   echo -e "${BROWN}Arguments:${NC}"
    echo "  folder_path               Folder to zip (default: current directory)"
    echo "  output_path               Output zip file path (default: same directory as folder)"
    echo
-   echo -e "${YELLOW}Examples:${NC}"
+   echo -e "${BROWN}Examples:${NC}"
    echo "  ./zipFolder.sh                                    # Zips current directory"
    echo "  ./zipFolder.sh /path/to/folder                    # Zips specified folder"
    echo "  ./zipFolder.sh /path/to/folder /output/path      # Zips to specified output path"
@@ -127,12 +130,12 @@ else
    fi
 fi
 
-echo -e "${BLUE}=================================${NC}"
-echo -e "${BLUE}   Folder Zip Archive Creator${NC}"
-echo -e "${BLUE}=================================${NC}"
+echo -e "${DARKBLUE}=================================${NC}"
+echo -e "${DARKBLUE}   Folder Zip Archive Creator${NC}"
+echo -e "${DARKBLUE}=================================${NC}"
 echo ""
-echo -e "${YELLOW}Folder:${NC} ${FOLDER_ABS_PATH}"
-echo -e "${YELLOW}Output:${NC} ${OUTPUT_PATH}"
+echo -e "${AQUA}Folder:${NC} ${FOLDER_ABS_PATH}"
+echo -e "${AQUA}Output:${NC} ${OUTPUT_PATH}"
 echo ""
 
 # Change to parent directory for zipping
@@ -179,16 +182,16 @@ if [[ "$USE_EXCLUSIONS" == true ]]; then
     fi
     
     if [[ "$EXCLUDE_NODE_MODULES" == true ]]; then
-        echo -e "${BLUE}Creating zip archive (excluding node_modules and build artifacts)...${NC}"
-        echo -e "${YELLOW}Excluding:${NC} node_modules, .git, .DS_Store, logs, build artifacts, and dev files"
+        echo -e "${INDIGO}Creating zip archive (excluding node_modules and build artifacts)...${NC}"
+        echo -e "${BROWN}Excluding:${NC} node_modules, .git, .DS_Store, logs, build artifacts, and dev files"
     else
-        echo -e "${BLUE}Creating zip archive (including node_modules)...${NC}"
-        echo -e "${YELLOW}Including:${NC} node_modules folder (may be large)"
-        echo -e "${YELLOW}Excluding:${NC} .git, .DS_Store, logs, and dev files"
+        echo -e "${INDIGO}Creating zip archive (including node_modules)...${NC}"
+        echo -e "${BROWN}Including:${NC} node_modules folder (may be large)"
+        echo -e "${BROWN}Excluding:${NC} .git, .DS_Store, logs, and dev files"
     fi
 else
-    echo -e "${BLUE}Creating zip archive (no exclusions)...${NC}"
-    echo -e "${YELLOW}Including:${NC} All files and folders"
+    echo -e "${INDIGO}Creating zip archive (no exclusions)...${NC}"
+    echo -e "${BROWN}Including:${NC} All files and folders"
 fi
 
 echo ""
@@ -209,12 +212,12 @@ if [[ $? -eq 0 ]]; then
     if [[ -f "${OUTPUT_PATH}" ]]; then
         ZIP_SIZE=$(ls -lh "${OUTPUT_PATH}" | awk '{print $5}')
         echo -e "${GREEN}Archive Details:${NC}"
-        echo -e "  File: ${YELLOW}${OUTPUT_PATH}${NC}"
-        echo -e "  Size: ${YELLOW}${ZIP_SIZE}${NC}"
+        echo -e "  File: ${AQUA}${OUTPUT_PATH}${NC}"
+        echo -e "  Size: ${AQUA}${ZIP_SIZE}${NC}"
         echo ""
         
         # List contents (first 20 files)
-        echo -e "${BLUE}Archive Contents (first 20 files):${NC}"
+        echo -e "${DARKBLUE}Archive Contents (first 20 files):${NC}"
         unzip -l "${OUTPUT_PATH}" | head -20
         echo ""
         

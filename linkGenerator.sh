@@ -12,44 +12,47 @@ export APPS_HOME="/Applications"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export SCRIPTS_HOME="${SCRIPT_DIR}"
 
-# Colors for output
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
+# Colors for output (optimized for white backgrounds)
+AQUA='\033[0;36m'        # Cyan - good contrast on white
+BLUEVIOLET='\033[0;35m'  # Magenta/Purple - good contrast on white
+BROWN='\033[0;33m'       # Yellow/Brown - visible on white
+RED='\033[0;31m'         # Red - excellent contrast on white
+DARKBLUE='\033[0;34m'    # Blue - good contrast on white
+GREEN='\033[0;32m'       # Green - good contrast on white
+INDIGO='\033[1;34m'      # Bright Blue - good contrast on white
+NC='\033[0m'             # No Color
 
 echo
-echo -e "${BLUE}=================================${NC}"
-echo -e "${BLUE}   Symbolic Link Generator${NC}"
-echo -e "${BLUE}=================================${NC}"
+echo -e "${DARKBLUE}=================================${NC}"
+echo -e "${DARKBLUE}   Symbolic Link Generator${NC}"
+echo -e "${DARKBLUE}=================================${NC}"
 echo ""
-echo -e "${YELLOW}SCRIPTS_HOME:${NC} ${SCRIPTS_HOME}"
+echo -e "${AQUA}SCRIPTS_HOME:${NC} ${SCRIPTS_HOME}"
 echo ""
 
 # ----------------<Generate Symbolic Links>----------------
-echo -e "${BLUE}Generating symbolic links...${NC}"
+echo -e "${INDIGO}Generating symbolic links...${NC}"
 echo ""
 
 # ----------------<AWS Links>----------------
-echo -e "${YELLOW}AWS Links${NC}"
+echo -e "${BLUEVIOLET}AWS Links${NC}"
 export AWS_DIR="${SCRIPTS_HOME}/AWS"
 ln -fs "${AWS_DIR}/sshInstance.sh" "${USER_HOME}/sshInstance" && echo -e "  ${GREEN}✓${NC} sshInstance"
 
 # ----------------<BuildTools Links>----------------
-echo -e "${YELLOW}BuildTools Links${NC}"
+echo -e "${BLUEVIOLET}BuildTools Links${NC}"
 export BUILD_TOOLS="${SCRIPTS_HOME}/BuildTools"
 ln -fs "${BUILD_TOOLS}/Homebrew/installHomebrew.sh" "${USER_HOME}/installHomebrew" && echo -e "  ${GREEN}✓${NC} installHomebrew"
 
 # ----------------<Docker Links>----------------
-echo -e "${YELLOW}Docker Links${NC}"
+echo -e "${BLUEVIOLET}Docker Links${NC}"
 export DOCKER_DIR="${SCRIPTS_HOME}/IaC/Docker"
 ln -fs "${DOCKER_DIR}/buildDockerImage.sh" "${USER_HOME}/buildDockerImage" && echo -e "  ${GREEN}✓${NC} buildDockerImage"
 ln -fs "${DOCKER_DIR}/listDockerImages.sh" "${USER_HOME}/listDockerImages" && echo -e "  ${GREEN}✓${NC} listDockerImages"
 ln -fs "${DOCKER_DIR}/sshDockerImage.sh" "${USER_HOME}/sshDockerImage" && echo -e "  ${GREEN}✓${NC} sshDockerImage"
 
 # ----------------<Git Links>----------------
-echo -e "${YELLOW}Git Links${NC}"
+echo -e "${BLUEVIOLET}Git Links${NC}"
 export GIT_DIR="${SCRIPTS_HOME}/VCS/Git"
 ln -fs "${GIT_DIR}/addSSHKeys.sh" "${USER_HOME}/addSSHKeys" && echo -e "  ${GREEN}✓${NC} addSSHKeys"
 ln -fs "${GIT_DIR}/fixEmailPrivacyRestrictions.sh" "${USER_HOME}/fixEmailPrivacyRestrictions" && echo -e "  ${GREEN}✓${NC} fixEmailPrivacyRestrictions"
@@ -65,16 +68,16 @@ ln -fs "${GIT_DIR}/syncOriginBranches.sh" "${USER_HOME}/syncOriginBranches" && e
 ln -fs "${GIT_DIR}/tagBranch.sh" "${USER_HOME}/tagGitBranch" && echo -e "  ${GREEN}✓${NC} tagGitBranch"
 
 # JDK Links
-echo -e "${YELLOW}JDK Links${NC}"
+echo -e "${BLUEVIOLET}JDK Links${NC}"
 ln -fs "${SCRIPTS_HOME}/Java/jdkSwitch.sh" "${USER_HOME}/jdkSwitch" && echo -e "  ${GREEN}✓${NC} jdkSwitch"
 
 # ----------------<MyOSConfigs Links>----------------
-echo -e "${YELLOW}MyOSConfigs Links${NC}"
+echo -e "${BLUEVIOLET}MyOSConfigs Links${NC}"
 export MY_OS_CONFIGS="${SCRIPTS_HOME}/MyOSConfigs"
 ln -fs "${MY_OS_CONFIGS}/dotConfigs.sh" "${USER_HOME}/dotConfigs" && echo -e "  ${GREEN}✓${NC} dotConfigs"
 
 # ----------------<OSX Links>----------------
-echo -e "${YELLOW}OSX Links${NC}"
+echo -e "${BLUEVIOLET}OSX Links${NC}"
 export OSX_DIR="${SCRIPTS_HOME}/OS/OSX"
 ln -fs "${OSX_DIR}/checkPortUsage.sh" "${USER_HOME}/checkPortUsage" && echo -e "  ${GREEN}✓${NC} checkPortUsage"
 ln -fs "${OSX_DIR}/cleanBuildArtifacts.sh" "${USER_HOME}/cleanBuildArtifacts" && echo -e "  ${GREEN}✓${NC} cleanBuildArtifacts"
@@ -90,7 +93,7 @@ ln -fs "${OSX_DIR}/zipFolder.sh" "${USER_HOME}/zipFolder" && echo -e "  ${GREEN}
 # brew install openjdk@11
 # sudo ln -sfn /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk
 #
-echo -e "${YELLOW}syncroSVNClient Links${NC}"
+echo -e "${BLUEVIOLET}syncroSVNClient Links${NC}"
 SYNCRO_SVN_CLIENT_HOME="${APPS_HOME}/syncroSVNClient"
 ln -fs "${SYNCRO_SVN_CLIENT_HOME}/diffDirsMac.sh" "${USER_HOME}/diffFolders" && echo -e "  ${GREEN}✓${NC} diffFolders"
 
