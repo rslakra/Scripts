@@ -7,32 +7,27 @@
 export CUR_DIR="${PWD}"
 export USER_HOME="${HOME}"
 export APPS_HOME="/Applications"
-export WORKSPACE_HOME="${USER_HOME}/Workspace"
-export SCRIPTS_HOME="${WORKSPACE_HOME}/Scripts"
 
-# --------<Tweak Paths, if needed>--------
+# Detect script location and set SCRIPTS_HOME to the directory containing this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export SCRIPTS_HOME="${SCRIPT_DIR}"
+
 echo
-#echo "${WORKSPACE_HOME} not found or is symlink to $(readlink -f ${WORKSPACE_HOME})."
-
-# Check the Workspaces folder is under documents or not.
-if [ ! -d "${WORKSPACE_HOME}" -a ! -h "${WORKSPACE_HOME}" ]; then 
-    SCRIPTS_HOME="${WORKSPACE_HOME}/Scripts"
-fi
 echo "SCRIPTS_HOME: ${SCRIPTS_HOME}"
 echo
 
 # ----------------<Generate Symbolic Links>----------------
 
 # ----------------<AWS Links>----------------
-export AWS_DIR="${SCRIPTS}/AWS"
+export AWS_DIR="${SCRIPTS_HOME}/AWS"
 ln -fs "${AWS_DIR}/sshInstance.sh" ~/sshInstance
 
 # ----------------<BuildTools Links>----------------
-export BUILD_TOOLS="${SCRIPTS}/BuildTools"
+export BUILD_TOOLS="${SCRIPTS_HOME}/BuildTools"
 ln -fs "${BUILD_TOOLS}/Homebrew/installHomebrew.sh" ~/installHomebrew
 
 # ----------------<Docker Links>----------------
-export DOCKER_DIR="${SCRIPTS}/Docker"
+export DOCKER_DIR="${SCRIPTS_HOME}/IaC/Docker"
 ln -fs "${DOCKER_DIR}/buildDockerImage.sh" ~/buildDockerImage
 ln -fs "${DOCKER_DIR}/listDockerImages.sh" ~/listDockerImages
 ln -fs "${DOCKER_DIR}/sshDockerImage.sh" ~/sshDockerImage
@@ -53,7 +48,7 @@ ln -fs "${GIT_DIR}/syncOriginBranches.sh" ~/syncOriginBranches
 ln -fs "${GIT_DIR}/tagBranch.sh" ~/tagGitBranch
 
 # JDK Links
-ln -sf "${SCRIPTS_HOME}/JDK/jdkSwitch.sh" ~/jdkSwitch
+ln -sf "${SCRIPTS_HOME}/Java/jdkSwitch.sh" ~/jdkSwitch
 
 # ----------------<MyOSConfigs Links>----------------
 export MY_OS_CONFIGS="${SCRIPTS_HOME}/MyOSConfigs"
@@ -62,7 +57,7 @@ ln -fs "${MY_OS_CONFIGS}/dotConfigs.sh" ~/dotConfigs
 # ----------------<OSX Links>----------------
 export OSX_DIR="${SCRIPTS_HOME}/OS/OSX"
 ln -fs "${OSX_DIR}/checkPortUsage.sh" ~/checkPortUsage
-ln -fs "${OSX_DIR}/delRecursively.sh" ~/delRecursively
+ln -fs "${OSX_DIR}/cleanBuildArtifacts.sh" ~/cleanBuildArtifacts
 ln -sf "${OSX_DIR}/findLargeSizeFiles.sh" ~/findLargeSizeFiles
 ln -sf "${OSX_DIR}/installXCode.sh" ~/installXCode
 ln -fs "${OSX_DIR}/showComputerName.sh" ~/showComputerName

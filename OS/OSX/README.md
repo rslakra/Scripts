@@ -21,6 +21,22 @@ The ```OSX``` specific commands.
 
 ## Commands
 
+### Clean Build Artifacts
+
+Removes build artifacts and cache files recursively. Can be used to clean default build artifacts or a specific file/folder.
+
+**Default cleanup entries:** `.DS_Store`, `__pycache__`, `.pyc`, `.pyo`, `venv`, `target`, `build`, `dist`
+
+```shell
+# Remove default build artifacts
+./cleanBuildArtifacts.sh
+
+# Remove a specific file or folder recursively
+./cleanBuildArtifacts.sh 'file or folder name'
+```
+
+**Note:** This script removes both files and folders matching the specified name.
+
 ### Find Used Port
 ```shell
 sudo lsof -i :8080
