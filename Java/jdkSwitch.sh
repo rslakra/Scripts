@@ -5,21 +5,24 @@
 #jdkSwitch -v 8    #switches to java 8
 #jdkSwitch -v 11   #switches to java 11
 
+# Bootstrap: Find and source script_utils.sh, then setup environment
+_s="${BASH_SOURCE[0]}"; while [ -L "$_s" ]; do _l="$(readlink "$_s")"; [[ "$_l" != /* ]] && _s="$(cd "$(dirname "$_s")" && pwd)/$_l" || _s="$_l"; done; source "$(cd "$(dirname "$_s")/../.." && pwd)/script_utils.sh" && setup_scripts_env "${BASH_SOURCE[0]}"
+
 usage () {
     echo
-    echo "Usage:"
+    echo -e "${DARKBLUE}Usage:${NC}"
     echo
-    echo -e "\t~/jdkSwitch <version>"
+    echo -e "\t${AQUA}~/jdkSwitch <version>${NC}"
     echo
-    echo -e "\tOR"
+    echo -e "\t${BROWN}OR${NC}"
     echo
-    echo -e "\t~/jdkSwitch -v <version>"
+    echo -e "\t${AQUA}~/jdkSwitch -v <version>${NC}"
     echo
-    echo "Example:"
+    echo -e "${BROWN}Example:${NC}"
     echo
     echo -e "\t~/jdkSwitch 11"
     echo
-    echo -e "\tOR"
+    echo -e "\t${BROWN}OR${NC}"
     echo
     echo -e "\t~/jdkSwitch -v 11"
     echo
@@ -46,10 +49,10 @@ else
   JAVA_HOME_CMD="${JAVA_HOME_CMD} $@"
 fi
 
-echo "JAVA_HOME_CMD: ${JAVA_HOME_CMD}"
+echo -e "${AQUA}JAVA_HOME_CMD:${NC} ${JAVA_HOME_CMD}"
 echo
 export JAVA_HOME="${JAVA_HOME_CMD}"
-echo "JAVA_HOME:" $JAVA_HOME
-echo "java -version:"
+echo -e "${GREEN}JAVA_HOME:${NC} $JAVA_HOME"
+echo -e "${GREEN}java -version:${NC}"
 java -version
 echo

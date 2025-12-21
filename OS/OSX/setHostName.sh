@@ -2,14 +2,18 @@
 # Author: Rohtash Lakra
 # Display Computer Name
 #
+
+# Bootstrap: Find and source script_utils.sh, then setup environment
+_s="${BASH_SOURCE[0]}"; while [ -L "$_s" ]; do _l="$(readlink "$_s")"; [[ "$_l" != /* ]] && _s="$(cd "$(dirname "$_s")" && pwd)/$_l" || _s="$_l"; done; source "$(cd "$(dirname "$_s")/../.." && pwd)/script_utils.sh" && setup_scripts_env "${BASH_SOURCE[0]}"
+
 clear
+print_header "Set Host Name"
 COMPUTER_NAME=$(sudo scutil --get ComputerName)
 # Check .aws folder exists
 if [ -z "${COMPUTER_NAME}" ]; then
   COMPUTER_NAME="JG2MVTYWPW"
 fi
-echo
-echo "Set Host Name: ${COMPUTER_NAME}"
+echo -e "${INDIGO}Setting Host Name: ${AQUA}${COMPUTER_NAME}${NC}"
 echo
 sudo scutil --set HostName $COMPUTER_NAME
 sudo scutil --set LocalHostName $COMPUTER_NAME
@@ -19,12 +23,13 @@ dscacheutil -flushcache
 # You can also restart directly from the terminal using:
 # echo "sudo shutdown -r now".
 
-echo 'Host Name:'
+echo -e "${DARKBLUE}Host Name:${NC}"
 sudo scutil --get HostName
 echo
-echo 'Local Host Name:'
+echo -e "${DARKBLUE}Local Host Name:${NC}"
 sudo scutil --get LocalHostName
 echo
-echo 'Computer Name:'
+echo -e "${DARKBLUE}Computer Name:${NC}"
 sudo scutil --get ComputerName
 echo
+print_success "Host name updated successfully!"

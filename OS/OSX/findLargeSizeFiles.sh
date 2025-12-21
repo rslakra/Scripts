@@ -8,6 +8,10 @@
 #                                                              # Supported formats: 1KB, 100MB, 1GB, 500M, 1k, 100M, etc.
 #   OR
 #   ./findLargeSizeFiles.sh <size> <directory>                 # Finds files larger than specified size in given directory
+
+# Bootstrap: Find and source script_utils.sh, then setup environment
+_s="${BASH_SOURCE[0]}"; while [ -L "$_s" ]; do _l="$(readlink "$_s")"; [[ "$_l" != /* ]] && _s="$(cd "$(dirname "$_s")" && pwd)/$_l" || _s="$_l"; done; source "$(cd "$(dirname "$_s")/../.." && pwd)/script_utils.sh" && setup_scripts_env "${BASH_SOURCE[0]}"
+
 clear
 echo
 
@@ -54,7 +58,11 @@ START_DIR=${2:-.}
 # Normalize the size format
 SIZE_THRESHOLD=$(normalize_size "$SIZE_INPUT")
 
-echo "Finding files larger than ${SIZE_INPUT} (${SIZE_THRESHOLD}) in [${START_DIR}] ..."
+print_header "Large File Finder"
+echo -e "${AQUA}Size Threshold:${NC} ${SIZE_INPUT} (${SIZE_THRESHOLD})"
+echo -e "${AQUA}Directory:${NC} ${START_DIR}"
+echo ""
+echo -e "${INDIGO}Finding files larger than ${SIZE_INPUT} (${SIZE_THRESHOLD}) in [${START_DIR}] ...${NC}"
 echo
 
 # Find files larger than threshold and display with human-readable sizes, sorted by size (largest first)
@@ -64,6 +72,6 @@ find "${START_DIR}" -type f -size +${SIZE_THRESHOLD} -exec ls -lh {} \; | \
     sort -h -k1 -r
 
 echo
-echo "Done!"
+print_success "Done!"
 echo
 

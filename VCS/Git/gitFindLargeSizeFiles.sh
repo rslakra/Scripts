@@ -7,13 +7,19 @@
 # @see http://stubbisms.wordpress.com/2009/07/10/git-script-to-show-largest-pack-objects-and-trim-your-waist-line/
 # @author Antony Stubbs
 
+# Bootstrap: Find and source script_utils.sh, then setup environment
+_s="${BASH_SOURCE[0]}"; while [ -L "$_s" ]; do _l="$(readlink "$_s")"; [[ "$_l" != /* ]] && _s="$(cd "$(dirname "$_s")" && pwd)/$_l" || _s="$_l"; done; source "$(cd "$(dirname "$_s")/../.." && pwd)/script_utils.sh" && setup_scripts_env "${BASH_SOURCE[0]}"
+
 # set the internal field spereator to line break, so that we can iterate easily over the verify-pack output
 IFS=$'\n';
+
+print_header "Git Large Size Files"
 
 # list all objects including their size, sort by size, take top 10
 objects=`git verify-pack -v .git/objects/pack/pack-*.idx | grep -v chain | sort -k3nr | head`
 
-echo "All sizes are in kB's. The pack column is the size of the object, compressed, inside the pack file."
+echo -e "${BROWN}All sizes are in kB's. The pack column is the size of the object, compressed, inside the pack file.${NC}"
+echo
 
 output="size,pack,SHA,location"
 for y in $objects
@@ -31,3 +37,4 @@ do
 done
 
 echo -e $output | column -t -s ', '
+echo

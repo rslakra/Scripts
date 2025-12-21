@@ -1,11 +1,15 @@
 #!/bin/bash
 # Author: Rohtash Lakra
 #
+
+# Bootstrap: Find and source script_utils.sh, then setup environment
+_s="${BASH_SOURCE[0]}"; while [ -L "$_s" ]; do _l="$(readlink "$_s")"; [[ "$_l" != /* ]] && _s="$(cd "$(dirname "$_s")" && pwd)/$_l" || _s="$_l"; done; source "$(cd "$(dirname "$_s")/../.." && pwd)/script_utils.sh" && setup_scripts_env "${BASH_SOURCE[0]}"
+
 CURR_DIR=$PWD
 WORKSPACE_DIR="${HOME}/Workspace"
-echo
+print_header "Sync Branches"
 branches="master staging develop"
-echo "Syncing ${WORKSPACE_DIR} ..."
+echo -e "${INDIGO}Syncing ${AQUA}${WORKSPACE_DIR}${INDIGO} ...${NC}"
 echo
 folders=" "
 for entry in $folders
@@ -13,7 +17,7 @@ do
   pathEntry="${WORKSPACE_DIR}/${entry}"
   if [[ -d "${pathEntry}" ]]; then
       echo
-      echo "Syncing [${pathEntry}] ..."
+      echo -e "${INDIGO}Syncing [${AQUA}${pathEntry}${INDIGO}] ...${NC}"
       echo
       cd "${pathEntry}"
       git reset --hard
@@ -21,7 +25,7 @@ do
       do
 #        pathEntry="${WORKSPACE_DIR}/${entry}"
         echo
-        echo "Checking out [${branch}] ..."
+        echo -e "${INDIGO}Checking out [${AQUA}${branch}${INDIGO}] ...${NC}"
         echo
 #        cd "$entry"
         git checkout "$branch"
@@ -35,9 +39,10 @@ do
 #      cd ..
       echo
   else
-      echo "${pathEntry} is not a directory"
+      print_warning "${pathEntry} is not a directory"
   fi
 done
 cd $CURR_DIR
+print_success "Sync completed!"
 echo
 

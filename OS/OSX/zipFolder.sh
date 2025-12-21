@@ -17,10 +17,8 @@
 #   --help                    Show this help message
 clear
 
-# Source colors configuration
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SCRIPTS_HOME="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-source "${SCRIPTS_HOME}/colors.sh"
+# Bootstrap: Find and source script_utils.sh, then setup environment
+_s="${BASH_SOURCE[0]}"; while [ -L "$_s" ]; do _l="$(readlink "$_s")"; [[ "$_l" != /* ]] && _s="$(cd "$(dirname "$_s")" && pwd)/$_l" || _s="$_l"; done; source "$(cd "$(dirname "$_s")/../.." && pwd)/script_utils.sh" && setup_scripts_env "${BASH_SOURCE[0]}"
 
 # Usage function
 usage() {
@@ -72,8 +70,8 @@ while [[ $# -gt 0 ]]; do
             usage
             exit 0
             ;;
-        -*)
-            echo -e "${RED}Error: Unknown option '$1'${NC}"
+            -*)
+            print_error "Unknown option '$1'"
             usage
             exit 1
             ;;
@@ -83,7 +81,7 @@ while [[ $# -gt 0 ]]; do
             elif [[ -z "$OUTPUT_PATH" ]]; then
                 OUTPUT_PATH="$1"
             else
-                echo -e "${RED}Error: Too many arguments${NC}"
+                print_error "Too many arguments"
                 usage
                 exit 1
             fi
@@ -97,7 +95,7 @@ FOLDER_PATH=${FOLDER_PATH:-.}
 
 # Check if folder exists
 if [[ ! -d "${FOLDER_PATH}" ]]; then
-   echo -e "${RED}Error: Folder '${FOLDER_PATH}' does not exist.${NC}"
+   print_error "Folder '${FOLDER_PATH}' does not exist."
    echo
    exit 1
 fi
@@ -125,12 +123,9 @@ else
    fi
 fi
 
-echo -e "${DARKBLUE}=================================${NC}"
-echo -e "${DARKBLUE}   Folder Zip Archive Creator${NC}"
-echo -e "${DARKBLUE}=================================${NC}"
-echo ""
-echo -e "${AQUA}Folder:${NC} ${FOLDER_ABS_PATH}"
-echo -e "${AQUA}Output:${NC} ${OUTPUT_PATH}"
+print_header "Folder Zip Archive Creator"
+echo -e "${DARKBLUE}Folder:${NC} ${GREEN}${FOLDER_ABS_PATH}${NC}"
+echo -e "${DARKBLUE}Output:${NC} ${INDIGO}${OUTPUT_PATH}${NC}"
 echo ""
 
 # Change to parent directory for zipping
@@ -178,15 +173,15 @@ if [[ "$USE_EXCLUSIONS" == true ]]; then
     
     if [[ "$EXCLUDE_NODE_MODULES" == true ]]; then
         echo -e "${INDIGO}Creating zip archive (excluding node_modules and build artifacts)...${NC}"
-        echo -e "${BROWN}Excluding:${NC} node_modules, .git, .DS_Store, logs, build artifacts, and dev files"
+        echo -e "${BROWN}Excluding:${NC} ${RED}node_modules${NC}, ${RED}.git${NC}, ${RED}.DS_Store${NC}, ${RED}logs${NC}, ${RED}build artifacts${NC}, and ${RED}dev files${NC}"
     else
         echo -e "${INDIGO}Creating zip archive (including node_modules)...${NC}"
-        echo -e "${BROWN}Including:${NC} node_modules folder (may be large)"
-        echo -e "${BROWN}Excluding:${NC} .git, .DS_Store, logs, and dev files"
+        echo -e "${BROWN}Including:${NC} ${GREEN}node_modules folder${NC} ${BROWN}(may be large)${NC}"
+        echo -e "${BROWN}Excluding:${NC} ${RED}.git${NC}, ${RED}.DS_Store${NC}, ${RED}logs${NC}, and ${RED}dev files${NC}"
     fi
 else
     echo -e "${INDIGO}Creating zip archive (no exclusions)...${NC}"
-    echo -e "${BROWN}Including:${NC} All files and folders"
+    echo -e "${BROWN}Including:${NC} ${GREEN}All files and folders${NC}"
 fi
 
 echo ""
@@ -200,20 +195,39 @@ fi
 
 # Check if zip was successful
 if [[ $? -eq 0 ]]; then
-    echo -e "${GREEN}✓ Archive created successfully!${NC}"
+    print_success "Archive created successfully!"
     echo ""
     
     # Get file size
     if [[ -f "${OUTPUT_PATH}" ]]; then
         ZIP_SIZE=$(ls -lh "${OUTPUT_PATH}" | awk '{print $5}')
         echo -e "${GREEN}Archive Details:${NC}"
-        echo -e "  File: ${AQUA}${OUTPUT_PATH}${NC}"
-        echo -e "  Size: ${AQUA}${ZIP_SIZE}${NC}"
+        echo -e "  ${DARKBLUE}File:${NC} ${INDIGO}${OUTPUT_PATH}${NC}"
+        echo -e "  ${DARKBLUE}Size:${NC} ${AQUA}${ZIP_SIZE}${NC}"
         echo ""
         
         # List contents (first 20 files)
         echo -e "${DARKBLUE}Archive Contents (first 20 files):${NC}"
-        unzip -l "${OUTPUT_PATH}" | head -20
+        # Colorize the unzip -l output
+        {
+            unzip -l "${OUTPUT_PATH}" | head -20 | while IFS= read -r line || [ -n "$line" ]; do
+                if [[ "$line" =~ ^Archive: ]]; then
+                    echo -e "${BROWN}${line}${NC}"
+                elif [[ "$line" =~ ^[[:space:]]*Length ]]; then
+                    echo -e "${DARKBLUE}${line}${NC}"
+                elif [[ "$line" =~ ^[[:space:]]*-+ ]]; then
+                    echo -e "${DARKBLUE}${line}${NC}"
+                elif [[ "$line" =~ ^[[:space:]]*([0-9]+)[[:space:]]+([0-9-]+)[[:space:]]+([0-9:]+)[[:space:]]+(.+)$ ]]; then
+                    length="${BASH_REMATCH[1]}"
+                    date="${BASH_REMATCH[2]}"
+                    time="${BASH_REMATCH[3]}"
+                    name="${BASH_REMATCH[4]}"
+                    printf "  ${AQUA}%10s${NC}  ${BROWN}%10s${NC}  ${BROWN}%8s${NC}  ${GREEN}%s${NC}\n" "$length" "$date" "$time" "$name"
+                else
+                    echo "$line"
+                fi
+            done
+        }
         echo ""
         
         # Count total files
@@ -231,16 +245,13 @@ if [[ $? -eq 0 ]]; then
         TIMESTAMPED_PATH="${OUTPUT_DIR}/${OUTPUT_BASE}_${TIMESTAMP}.zip"
         cp "${OUTPUT_PATH}" "${TIMESTAMPED_PATH}"
         echo ""
-        echo -e "${GREEN}✓ Timestamped version created: ${TIMESTAMPED_PATH}${NC}"
+        print_success "Timestamped version created: ${TIMESTAMPED_PATH}"
     fi
     
-    echo ""
-    echo -e "${GREEN}=================================${NC}"
-    echo -e "${GREEN}   ✓ Zip Archive Ready!${NC}"
-    echo -e "${GREEN}=================================${NC}"
+    print_completed "Zip Archive Ready!"
     
 else
-    echo -e "${RED}✗ Error creating archive${NC}"
+    print_failed "Error creating archive"
     exit 1
 fi
 
