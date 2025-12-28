@@ -65,7 +65,7 @@ ln -fs "${MY_OS_CONFIGS}/dotConfigs.sh" "${USER_HOME}/dotConfigs" && print_succe
 echo -e "${BLUEVIOLET}OSX Links${NC}"
 export OSX_DIR="${SCRIPTS_HOME}/OS/OSX"
 ln -fs "${OSX_DIR}/checkPortUsage.sh" "${USER_HOME}/checkPortUsage" && print_success "checkPortUsage"
-ln -fs "${OSX_DIR}/cleanBuildArtifacts.sh" "${USER_HOME}/cleanBuildArtifacts" && print_success "cleanBuildArtifacts"
+ln -fs "${OSX_DIR}/diskCleanup.sh" "${USER_HOME}/diskCleanup" && print_success "diskCleanup"
 ln -fs "${OSX_DIR}/findLargeSizeFiles.sh" "${USER_HOME}/findLargeSizeFiles" && print_success "findLargeSizeFiles"
 ln -fs "${OSX_DIR}/installXCode.sh" "${USER_HOME}/installXCode" && print_success "installXCode"
 ln -fs "${OSX_DIR}/showComputerName.sh" "${USER_HOME}/showComputerName" && print_success "showComputerName"

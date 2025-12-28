@@ -29,10 +29,10 @@ Removes build artifacts and cache files recursively. Can be used to clean defaul
 
 ```shell
 # Remove default build artifacts
-./cleanBuildArtifacts.sh
+./diskCleanup.sh
 
 # Remove a specific file or folder recursively
-./cleanBuildArtifacts.sh 'file or folder name'
+./diskCleanup.sh 'file or folder name'
 ```
 
 **Note:** This script removes both files and folders matching the specified name.
