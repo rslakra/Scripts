@@ -33,7 +33,14 @@ setup_scripts_env() {
     # Resolve symlinks to get actual script path
     local script_path=$(resolve_script_path "$script_source")
     local script_dir="$(cd "$(dirname "$script_path")" && pwd)"
-    export SCRIPTS_HOME="$(cd "${script_dir}/../.." && pwd)"
+    
+    # Check if script_utils.sh exists in script_dir (script is at root)
+    # If so, SCRIPTS_HOME is script_dir, otherwise go up 2 directories
+    if [ -f "${script_dir}/script_utils.sh" ]; then
+        export SCRIPTS_HOME="${script_dir}"
+    else
+        export SCRIPTS_HOME="$(cd "${script_dir}/../.." && pwd)"
+    fi
     
     # Source colors.sh if it exists
     if [ -f "${SCRIPTS_HOME}/colors.sh" ]; then
