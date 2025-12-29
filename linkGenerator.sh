@@ -1,7 +1,10 @@
 #!/bin/bash
 # Author: Rohtash Lakra
 # Generates the local links for the major scripts
-#
+# Usage:
+#   ./linkGenerator.sh              # Generate all symbolic links
+#   ./linkGenerator.sh --remove     # Remove all broken symbolic links in ~
+#   ./linkGenerator.sh --soft-links # List all symbolic links in ~
 
 # ----------------< Variables >----------------
 export CUR_DIR="${PWD}"
@@ -11,6 +14,139 @@ export APPS_HOME="/Applications"
 # Bootstrap: Find and source script_utils.sh, then setup environment
 # Note: linkGenerator.sh is at the root, so source script_utils.sh from the same directory
 _s="${BASH_SOURCE[0]}"; while [ -L "$_s" ]; do _l="$(readlink "$_s")"; [[ "$_l" != /* ]] && _s="$(cd "$(dirname "$_s")" && pwd)/$_l" || _s="$_l"; done; source "$(cd "$(dirname "$_s")" && pwd)/script_utils.sh" && setup_scripts_env "${BASH_SOURCE[0]}"
+
+# Usage function
+usage() {
+    echo
+    echo -e "${DARKBLUE}Usage:${NC}"
+    echo -e "  ${AQUA}./linkGenerator.sh${NC}           # Generate all symbolic links"
+    echo -e "  ${AQUA}./linkGenerator.sh --remove${NC}  # Remove all broken symbolic links in ~"
+    echo -e "  ${AQUA}./linkGenerator.sh --soft-links${NC} # List all symbolic links in ~"
+    echo
+}
+
+# Function to remove broken symbolic links
+remove_broken_links() {
+    print_header "Remove Broken Symbolic Links"
+    echo -e "${INDIGO}Scanning for broken symbolic links in ${AQUA}${USER_HOME}${INDIGO}...${NC}"
+    echo ""
+    
+    local removed_count=0
+    local broken_links=()
+    
+    # Find all symbolic links in home directory (maxdepth 1, only direct children)
+    while IFS= read -r link; do
+        if [ -n "$link" ]; then
+            # Check if the link is broken (target doesn't exist)
+            # Use test -e to check if the resolved target exists
+            if [ ! -e "$link" ]; then
+                broken_links+=("$link")
+            fi
+        fi
+    done < <(find "$USER_HOME" -maxdepth 1 -type l 2>/dev/null)
+    
+    if [ ${#broken_links[@]} -eq 0 ]; then
+        print_success "No broken symbolic links found!"
+        echo
+        return 0
+    fi
+    
+    echo -e "${BROWN}Found ${#broken_links[@]} broken symbolic link(s):${NC}"
+    echo
+    
+    # Remove each broken link
+    for link in "${broken_links[@]}"; do
+        local link_name=$(basename "$link")
+        local target=$(readlink "$link" 2>/dev/null || echo "unknown")
+        
+        echo -e "${BROWN}Removing: ${AQUA}${link_name}${BROWN} -> ${RED}${target}${NC} (broken)"
+        rm -f "$link"
+        
+        if [ $? -eq 0 ]; then
+            print_success "Removed: ${link_name}"
+            ((removed_count++))
+        else
+            print_error "Failed to remove: ${link_name}"
+        fi
+    done
+    
+    echo
+    if [ $removed_count -gt 0 ]; then
+        print_success "Removed ${removed_count} broken symbolic link(s)!"
+    else
+        print_warning "No links were removed"
+    fi
+    echo
+}
+
+# Function to list all symbolic links
+list_soft_links() {
+    print_header "Symbolic Links in Home Directory"
+    echo -e "${INDIGO}Listing all symbolic links in ${AQUA}${USER_HOME}${INDIGO}...${NC}"
+    echo ""
+    
+    local all_links=()
+    local total_count=0
+    
+    # Find all symbolic links in home directory (maxdepth 1, only direct children)
+    while IFS= read -r link; do
+        if [ -n "$link" ]; then
+            all_links+=("$link")
+            ((total_count++))
+        fi
+    done < <(find "$USER_HOME" -maxdepth 1 -type l 2>/dev/null | sort)
+    
+    if [ $total_count -eq 0 ]; then
+        print_warning "No symbolic links found in ${USER_HOME}"
+        echo
+        return 0
+    fi
+    
+    echo -e "${BROWN}Found ${total_count} symbolic link(s):${NC}"
+    echo ""
+    
+    # Display each link with details
+    for link in "${all_links[@]}"; do
+        local link_name=$(basename "$link")
+        local target=$(readlink "$link" 2>/dev/null || echo "unknown")
+        local status=""
+        
+        # Check if link is broken
+        if [ ! -e "$link" ]; then
+            status="${RED}(broken)${NC}"
+        else
+            status="${GREEN}(valid)${NC}"
+        fi
+        
+        # Display in ls -l format
+        local link_info=$(ls -ld "$link" 2>/dev/null)
+        if [ -n "$link_info" ]; then
+            echo -e "${link_info} ${status}"
+        else
+            echo -e "${AQUA}${link_name}${NC} -> ${BROWN}${target}${NC} ${status}"
+        fi
+    done
+    
+    echo
+    echo -e "${GREEN}Total: ${AQUA}${total_count}${GREEN} symbolic link(s)${NC}"
+    echo
+}
+
+# Parse arguments
+if [ "$1" == "--remove" ]; then
+    remove_broken_links
+    exit 0
+elif [ "$1" == "--soft-links" ]; then
+    list_soft_links
+    exit 0
+elif [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
+    usage
+    exit 0
+elif [ $# -gt 0 ]; then
+    print_error "Unknown option: $1"
+    usage
+    exit 1
+fi
 
 print_header "Symbolic Link Generator"
 echo -e "${AQUA}SCRIPTS_HOME:${NC} ${SCRIPTS_HOME}"
@@ -41,11 +177,12 @@ ln -fs "${DOCKER_DIR}/sshDockerImage.sh" "${USER_HOME}/sshDockerImage" && print_
 echo -e "${BLUEVIOLET}Git Links${NC}"
 export GIT_DIR="${SCRIPTS_HOME}/VCS/Git"
 ln -fs "${GIT_DIR}/addSSHKeys.sh" "${USER_HOME}/addSSHKeys" && print_success "addSSHKeys"
+ln -fs "${GIT_DIR}/fetchTags.sh" "${USER_HOME}/fetchTags" && print_success "fetchTags"
 ln -fs "${GIT_DIR}/fixEmailPrivacyRestrictions.sh" "${USER_HOME}/fixEmailPrivacyRestrictions" && print_success "fixEmailPrivacyRestrictions"
 ln -fs "${GIT_DIR}/logGitCommits.sh" "${USER_HOME}/logGitCommits" && print_success "logGitCommits"
+ln -fs "${GIT_DIR}/mergeBranches.sh" "${USER_HOME}/mergeBranches" && print_success "mergeBranches"
 ln -fs "${GIT_DIR}/removeBranch.sh" "${USER_HOME}/removeGitBranch" && print_success "removeGitBranch"
-ln -fs "${GIT_DIR}/removeTag.sh" "${USER_HOME}/removeGitTag" && print_success "removeGitTag"
-ln -fs "${GIT_DIR}/removeAllTags.sh" "${USER_HOME}/removeAllGitTags" && print_success "removeAllGitTags"
+ln -fs "${GIT_DIR}/tagRemove.sh" "${USER_HOME}/tagRemove" && print_success "tagRemove"
 ln -fs "${GIT_DIR}/setContributors.sh" "${USER_HOME}/setContributors" && print_success "setContributors"
 ln -fs "${GIT_DIR}/showCommitGraph.sh" "${USER_HOME}/showCommitGraph" && print_success "showCommitGraph"
 ln -fs "${GIT_DIR}/showGitVersionHash.sh" "${USER_HOME}/showGitVersionHash" && print_success "showGitVersionHash"
