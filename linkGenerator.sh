@@ -199,10 +199,15 @@ echo -e "${BLUEVIOLET}MyOSConfigs Links${NC}"
 export MY_OS_CONFIGS="${SCRIPTS_HOME}/MyOSConfigs"
 ln -fs "${MY_OS_CONFIGS}/dotConfigs.sh" "${USER_HOME}/dotConfigs" && print_success "dotConfigs"
 
+# ----------------<Network Links>----------------
+echo -e "${BLUEVIOLET}Network Links${NC}"
+export NETWORK_DIR="${SCRIPTS_HOME}/Network"
+ln -fs "${NETWORK_DIR}/ipAddress.sh" "${USER_HOME}/ipAddress" && print_success "ipAddress"
+ln -fs "${NETWORK_DIR}/portUsage.sh" "${USER_HOME}/portUsage" && print_success "portUsage"
+
 # ----------------<OSX Links>----------------
 echo -e "${BLUEVIOLET}OSX Links${NC}"
 export OSX_DIR="${SCRIPTS_HOME}/OS/OSX"
-ln -fs "${OSX_DIR}/checkPortUsage.sh" "${USER_HOME}/checkPortUsage" && print_success "checkPortUsage"
 ln -fs "${OSX_DIR}/diskCleanup.sh" "${USER_HOME}/diskCleanup" && print_success "diskCleanup"
 ln -fs "${OSX_DIR}/findLargeSizeFiles.sh" "${USER_HOME}/findLargeSizeFiles" && print_success "findLargeSizeFiles"
 ln -fs "${OSX_DIR}/installXCode.sh" "${USER_HOME}/installXCode" && print_success "installXCode"
