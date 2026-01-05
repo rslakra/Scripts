@@ -34,13 +34,28 @@ setup_scripts_env() {
     local script_path=$(resolve_script_path "$script_source")
     local script_dir="$(cd "$(dirname "$script_path")" && pwd)"
     
-    # Check if script_utils.sh exists in script_dir (script is at root)
-    # If so, SCRIPTS_HOME is script_dir, otherwise go up 2 directories
-    if [ -f "${script_dir}/script_utils.sh" ]; then
-        export SCRIPTS_HOME="${script_dir}"
-    else
-        export SCRIPTS_HOME="$(cd "${script_dir}/../.." && pwd)"
+    # Find script_utils.sh by searching up the directory tree from script location to root
+    local current_dir="$script_dir"
+    local scripts_home=""
+    local prev_dir=""
+    
+    # Search up the directory tree until we find script_utils.sh or reach filesystem root
+    while [ "$current_dir" != "$prev_dir" ]; do
+        if [ -f "${current_dir}/script_utils.sh" ]; then
+            scripts_home="$current_dir"
+            break
+        fi
+        # Go up one directory
+        prev_dir="$current_dir"
+        current_dir="$(cd "${current_dir}/.." && pwd)"
+    done
+    
+    if [ -z "$scripts_home" ]; then
+        echo "Error: script_utils.sh not found in parent directories of ${script_dir}" >&2
+        return 1
     fi
+    
+    export SCRIPTS_HOME="$scripts_home"
     
     # Source colors.sh if it exists
     if [ -f "${SCRIPTS_HOME}/colors.sh" ]; then
