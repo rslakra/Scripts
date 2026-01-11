@@ -175,12 +175,14 @@ ln -fs "${DOCKER_DIR}/sshDockerImage.sh" "${USER_HOME}/sshDockerImage" && print_
 
 # ----------------<Git Links>----------------
 echo -e "${BLUEVIOLET}Git Links${NC}"
-export GIT_DIR="${SCRIPTS_HOME}/VCS/Git"
+export VCS_DIR="${SCRIPTS_HOME}/VCS"
+export GIT_DIR="${VCS_DIR}/Git"
 ln -fs "${GIT_DIR}/addSSHKeys.sh" "${USER_HOME}/addSSHKeys" && print_success "addSSHKeys"
 ln -fs "${GIT_DIR}/fetchTags.sh" "${USER_HOME}/fetchTags" && print_success "fetchTags"
 ln -fs "${GIT_DIR}/fixEmailPrivacyRestrictions.sh" "${USER_HOME}/fixEmailPrivacyRestrictions" && print_success "fixEmailPrivacyRestrictions"
 ln -fs "${GIT_DIR}/logGitCommits.sh" "${USER_HOME}/logGitCommits" && print_success "logGitCommits"
 ln -fs "${GIT_DIR}/mergeBranches.sh" "${USER_HOME}/mergeBranches" && print_success "mergeBranches"
+ln -fs "${VCS_DIR}/migrate-repository.sh" "${USER_HOME}/migrateRepository" && print_success "migrateRepository"
 ln -fs "${GIT_DIR}/removeBranch.sh" "${USER_HOME}/removeGitBranch" && print_success "removeGitBranch"
 ln -fs "${GIT_DIR}/tagRemove.sh" "${USER_HOME}/tagRemove" && print_success "tagRemove"
 ln -fs "${GIT_DIR}/setContributors.sh" "${USER_HOME}/setContributors" && print_success "setContributors"
