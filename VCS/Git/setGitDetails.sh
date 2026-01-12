@@ -41,13 +41,19 @@ usage() {
     echo -e "    ${INDIGO}  Name: ${AQUA}${LOCAL_NAME}${NC}"
     echo
     echo -e "${BROWN}Examples:${NC}"
-    echo -e "  ${AQUA}./setGitDetails.sh${NC}                       # Set global defaults"
-    echo -e "  ${AQUA}./setGitDetails.sh --global${NC}              # Set global defaults (explicit)"
-    echo -e "  ${AQUA}./setGitDetails.sh --local${NC}               # Set local defaults"
-    echo -e "  ${AQUA}./setGitDetails.sh --global --email user@example.com --name \"John Doe\"${NC}"
-    echo -e "  ${AQUA}./setGitDetails.sh --local --email work@example.com${NC}"
-    echo -e "  ${AQUA}./setGitDetails.sh --contributors${NC}        # Generate contributors file"
+    echo -e "  ${AQUA}./setGitDetails.sh${NC}                                   # Set global defaults"
+    echo -e "  ${AQUA}./setGitDetails.sh --global${NC}                          # Set global defaults (explicit)"
+    echo -e "  ${AQUA}./setGitDetails.sh --local${NC}                           # Set local defaults"
+    echo -e "  ${AQUA}./setGitDetails.sh --global --email \"user@example.com\" --name \"John Doe\"${NC}"
+    echo -e "  ${AQUA}./setGitDetails.sh --global --email \"rslakra@users.noreply.github.com\" --name \"Rohtash Lakra\"${NC}"
+    echo -e "  ${AQUA}./setGitDetails.sh --local --email \"work@example.com\"${NC}"
+    echo -e "  ${AQUA}./setGitDetails.sh --email \"user@example.com\" --name \"John Doe\" --global${NC}  # Options can be in any order"
+    echo -e "  ${AQUA}./setGitDetails.sh --contributors${NC}                    # Generate contributors file"
     echo -e "  ${AQUA}./setGitDetails.sh --contributors CONTRIBUTORS.txt${NC}"
+    echo
+    echo -e "${BROWN}Note:${NC}"
+    echo -e "  ${INDIGO}Options can be specified in any order${NC}"
+    echo -e "  ${INDIGO}If using from home directory via symlink: ${AQUA}~/setGitDetails${NC}"
     echo
 }
 
