@@ -6,29 +6,38 @@
 # Bootstrap: Find and source script_utils.sh, then setup environment
 _s="${BASH_SOURCE[0]}"; while [ -L "$_s" ]; do _l="$(readlink "$_s")"; [[ "$_l" != /* ]] && _s="$(cd "$(dirname "$_s")" && pwd)/$_l" || _s="$_l"; done; source "$(cd "$(dirname "$_s")/../.." && pwd)/script_utils.sh" && setup_scripts_env "${BASH_SOURCE[0]}"
 
-version="$1"
-message="$2"
-#if [ -z "${version}" ] || [ -z "${message}" ]; then
-if [ -z "${version}" ]; then
+# Usage function
+usage() {
     echo
     echo -e "${DARKBLUE}Creates an annotated tag on the GIT branch.${NC}"
     echo
     echo -e "${DARKBLUE}Usage:${NC}"
+    echo -e "  ${AQUA}./tagBranch.sh <version> [message]${NC}"
+    echo -e "  ${AQUA}./tagBranch.sh --help${NC}  # Show this help"
     echo
-    echo -e "\t${AQUA}~/tagBranch.sh <version> <message>${NC}"
+    echo -e "${BROWN}Arguments:${NC}"
+    echo -e "  ${INDIGO}<version>${NC}  - Version number (e.g., 1.0.0)"
+    echo -e "  ${INDIGO}[message]${NC} - Optional tag message (default: \"v<version> ready for production release.\")"
     echo
-    echo -e "\t${BROWN}<message> is optional${NC}"
+    echo -e "${BROWN}Examples:${NC}"
+    echo -e "  ${AQUA}./tagBranch.sh 1.0.0${NC}"
+    echo -e "  ${AQUA}./tagBranch.sh 1.0.0 \"v1.0.0 ready for production release.\"${NC}"
     echo
-    echo -e "${BROWN}Example:${NC}"
-    echo
-    echo -e "\t~/tagBranch.sh 1.0.0"
-    echo
-    echo -e "\t${BROWN}OR${NC}"
-    echo
-    echo -e "\t~/tagBranch.sh 1.0.0 \"v1.0.0 ready for production release.\""
-    echo
-    echo
-    exit
+}
+
+# Check for help option
+if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
+    usage
+    exit 0
+fi
+
+version="$1"
+message="$2"
+
+if [ -z "${version}" ]; then
+    print_error "Version is required"
+    usage
+    exit 1
 fi
 
 if [ -z "${message}" ]; then

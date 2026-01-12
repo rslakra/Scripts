@@ -11,9 +11,21 @@ _s="${BASH_SOURCE[0]}"; while [ -L "$_s" ]; do _l="$(readlink "$_s")"; [[ "$_l" 
 # Usage function
 usage() {
     echo
+    echo -e "${DARKBLUE}Remove Git tags (both local and remote).${NC}"
+    echo
     echo -e "${DARKBLUE}Usage:${NC}"
-    echo -e "  ${AQUA}./tagRemove.sh <tagName>${NC}    # Remove a specific tag"
-    echo -e "  ${AQUA}./tagRemove.sh --all${NC}        # Remove all tags"
+    echo -e "  ${AQUA}./tagRemove.sh <tagName>${NC}     # Remove a specific tag"
+    echo -e "  ${AQUA}./tagRemove.sh --all${NC}         # Remove all tags"
+    echo -e "  ${AQUA}./tagRemove.sh --help${NC}        # Show this help"
+    echo
+    echo -e "${BROWN}Description:${NC}"
+    echo -e "  ${INDIGO}Removes Git tags from both local repository and remote (origin).${NC}"
+    echo -e "  ${INDIGO}When removing a specific tag, it deletes both local and remote versions.${NC}"
+    echo -e "  ${INDIGO}When using --all, it removes all tags from both local and remote.${NC}"
+    echo
+    echo -e "${BROWN}Examples:${NC}"
+    echo -e "  ${AQUA}./tagRemove.sh v1.0.0${NC}        # Remove tag v1.0.0"
+    echo -e "  ${AQUA}./tagRemove.sh --all${NC}         # Remove all tags"
     echo
 }
 
@@ -89,6 +101,9 @@ if [ $# -eq 0 ]; then
     print_error "No arguments provided"
     usage
     exit 1
+elif [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
+    usage
+    exit 0
 elif [ "$1" == "--all" ]; then
     remove_all_tags
 else

@@ -17,11 +17,24 @@ echo
 # Usage
 usage() {
    echo
-   echo -e "${DARKBLUE}Usage:${NC} ./diskCleanup.sh                    # Removes default build artifacts"
-   echo -e "${BROWN}OR${NC}"
-   echo -e "${DARKBLUE}Usage:${NC} ./diskCleanup.sh 'FileName'         # Removes specified file/folder recursively"
+   echo -e "${DARKBLUE}Removes build artifacts and cache files recursively.${NC}"
+   echo
+   echo -e "${DARKBLUE}Usage:${NC}"
+   echo -e "  ${AQUA}./diskCleanup.sh${NC}                      # Removes default build artifacts"
+   echo -e "  ${AQUA}./diskCleanup.sh <file_or_folder>${NC}     # Removes specified file/folder recursively"
+   echo -e "  ${AQUA}./diskCleanup.sh --help${NC}               # Show this help"
+   echo
+   echo -e "${BROWN}Default artifacts removed:${NC}"
+   echo -e "  ${INDIGO}.DS_Store, .idea, .mvn, .pyc, .pyo, .svn, .terraform, .tmp, .venv${NC}"
+   echo -e "  ${INDIGO}__pycache__, bower_components, build, dist, node_modules, target, venv${NC}"
    echo
 }
+
+# Check for help option
+if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
+    usage
+    exit 0
+fi
 
 print_header "Build Artifacts Cleaner"
 

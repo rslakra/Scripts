@@ -91,7 +91,14 @@ git config --local user.name "Rohtash Lakra"
 | wip     | Works in progress; stuff I know won't be finished soon         |
 | feat    | Features, I'm adding or expanding (<feature-no> pattern)       |
 | bug     | Bug fix or experiment (<bug-no> pattern)                       |
-| 
+| junk    | Throwaway branch; created to experiment                        |
+
+
+# Reference
+
+---
+
+- 
 
 
 # Author

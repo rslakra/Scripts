@@ -38,7 +38,7 @@ After running `linkGenerator.sh`, you can use scripts directly from your home di
 ```bash
 ~/ipAddress             # Display IP address information
 ~/portUsage             # Check/free port usage
-~/logGitCommits         # View Git commit logs
+~/showGitCommits         # View Git commit logs
 ~/mergeBranches         # Merge Git branches
 ```
 
@@ -109,11 +109,11 @@ After running `linkGenerator.sh`, you can use scripts directly from your home di
 
 ### Git Utilities
 
-- **`VCS/Git/logGitCommits.sh`** - View Git commit logs in various formats
+- **`VCS/Git/showGitCommits.sh`** - View Git commit logs in various formats
   ```bash
-  ./logGitCommits.sh           # Short format with graph (default)
-  ./logGitCommits.sh --long    # Long format
-  ./logGitCommits.sh --stat    # With file statistics
+  ./showGitCommits.sh           # Short format with graph (default)
+  ./showGitCommits.sh --long    # Long format (oneline with graph)
+  ./showGitCommits.sh --stat    # With file statistics and graph
   ```
 
 - **`VCS/Git/mergeBranches.sh`** - Merge source branch into target branch
@@ -131,9 +131,9 @@ After running `linkGenerator.sh`, you can use scripts directly from your home di
 
 - **`DB/MySQL/configure.sh`** - Comprehensive MySQL configuration and user management
   ```bash
-  ./configure.sh --user testuser                    # Create regular user
-  ./configure.sh --user admin --admin               # Create admin user
-  ./configure.sh --root-password MyPass --database MyDB  # Full setup
+  ./configure.sh --user testuser                        # Create regular user
+  ./configure.sh --user admin --admin                   # Create admin user
+  ./configure.sh --root-password MyPass --database MyDB # Full setup
   ```
 
 ### Server Management
@@ -157,8 +157,8 @@ After running `linkGenerator.sh`, you can use scripts directly from your home di
 
 - **`SSL/importCertificate.sh`** - Import certificates into truststore
   ```bash
-  ./importCertificate.sh <certificate_file>              # Auto-detect type
-  ./importCertificate.sh --cert <type> <certificate_file>  # Specify type
+  ./importCertificate.sh <certificate_file>                 # Auto-detect type
+  ./importCertificate.sh --cert <type> <certificate_file>   # Specify type
   ```
 
 - **`SSL/convertCertificate.sh`** - Convert between certificate formats
