@@ -173,15 +173,20 @@ ln -fs "${DOCKER_DIR}/buildDockerImage.sh" "${USER_HOME}/buildDockerImage" && pr
 ln -fs "${DOCKER_DIR}/listDockerImages.sh" "${USER_HOME}/listDockerImages" && print_success "listDockerImages"
 ln -fs "${DOCKER_DIR}/sshDockerImage.sh" "${USER_HOME}/sshDockerImage" && print_success "sshDockerImage"
 
-# ----------------<Git Links>----------------
-echo -e "${BLUEVIOLET}Git Links${NC}"
+# ----------------<VCS Links>----------------
 export VCS_DIR="${SCRIPTS_HOME}/VCS"
+echo -e "${BLUEVIOLET}VCS Links${NC}"
+
+# VCS General Links
+ln -fs "${VCS_DIR}/migrate-repository.sh" "${USER_HOME}/migrateRepository" && print_success "migrateRepository"
+
+# ----------------<Git Links>----------------
 export GIT_DIR="${VCS_DIR}/Git"
+echo -e "${INDIGO}  Git Links${NC}"
 ln -fs "${GIT_DIR}/addSSHKeys.sh" "${USER_HOME}/addSSHKeys" && print_success "addSSHKeys"
 ln -fs "${GIT_DIR}/fetchTags.sh" "${USER_HOME}/fetchTags" && print_success "fetchTags"
 ln -fs "${GIT_DIR}/fixEmailPrivacyRestrictions.sh" "${USER_HOME}/fixEmailPrivacyRestrictions" && print_success "fixEmailPrivacyRestrictions"
 ln -fs "${GIT_DIR}/mergeBranches.sh" "${USER_HOME}/mergeBranches" && print_success "mergeBranches"
-ln -fs "${VCS_DIR}/migrate-repository.sh" "${USER_HOME}/migrateRepository" && print_success "migrateRepository"
 ln -fs "${GIT_DIR}/removeBranch.sh" "${USER_HOME}/removeGitBranch" && print_success "removeGitBranch"
 ln -fs "${GIT_DIR}/setGitDetails.sh" "${USER_HOME}/setGitDetails" && print_success "setGitDetails"
 ln -fs "${GIT_DIR}/showGitCommits.sh" "${USER_HOME}/showGitCommits" && print_success "showGitCommits"
@@ -191,6 +196,11 @@ ln -fs "${GIT_DIR}/syncBranches.sh" "${USER_HOME}/syncBranches" && print_success
 ln -fs "${GIT_DIR}/syncOriginBranches.sh" "${USER_HOME}/syncOriginBranches" && print_success "syncOriginBranches"
 ln -fs "${GIT_DIR}/tagBranch.sh" "${USER_HOME}/tagGitBranch" && print_success "tagGitBranch"
 ln -fs "${GIT_DIR}/tagRemove.sh" "${USER_HOME}/tagRemove" && print_success "tagRemove"
+
+# ----------------<SVN Links>----------------
+export SVN_DIR="${VCS_DIR}/SVN"
+echo -e "${INDIGO}  SVN Links${NC}"
+ln -fs "${SVN_DIR}/makeRepository.sh" "${USER_HOME}/makeRepository" && print_success "makeRepository"
 
 # JDK Links
 echo -e "${BLUEVIOLET}JDK Links${NC}"
