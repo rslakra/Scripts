@@ -187,7 +187,7 @@ ln -fs "${GIT_DIR}/addSSHKeys.sh" "${USER_HOME}/addSSHKeys" && print_success "ad
 ln -fs "${GIT_DIR}/fetchTags.sh" "${USER_HOME}/fetchTags" && print_success "fetchTags"
 ln -fs "${GIT_DIR}/fixEmailPrivacyRestrictions.sh" "${USER_HOME}/fixEmailPrivacyRestrictions" && print_success "fixEmailPrivacyRestrictions"
 ln -fs "${GIT_DIR}/mergeBranches.sh" "${USER_HOME}/mergeBranches" && print_success "mergeBranches"
-ln -fs "${GIT_DIR}/removeBranch.sh" "${USER_HOME}/removeGitBranch" && print_success "removeGitBranch"
+ln -fs "${GIT_DIR}/removeBranch.sh" "${USER_HOME}/removeBranch" && print_success "removeBranch"
 ln -fs "${GIT_DIR}/setGitDetails.sh" "${USER_HOME}/setGitDetails" && print_success "setGitDetails"
 ln -fs "${GIT_DIR}/showGitCommits.sh" "${USER_HOME}/showGitCommits" && print_success "showGitCommits"
 ln -fs "${GIT_DIR}/showGitConfigs.sh" "${USER_HOME}/showGitConfigs" && print_success "showGitConfigs"
