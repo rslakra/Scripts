@@ -31,9 +31,14 @@ usage() {
     echo -e "    ${BROWN}Example:${NC} ${AQUA}--sync projects.txt excludes.txt${NC}"
     echo -e "    ${BROWN}Example:${NC} ${AQUA}--sync projects.txt${NC}  ${INDIGO}# Exclude file is optional${NC}"
     echo
+    echo -e "  ${INDIGO}--clean${NC}"
+    echo -e "    Remove untracked files and directories after syncing each branch."
+    echo -e "    This performs ${AQUA}git clean -f -d${NC} to ensure a completely clean working directory."
+    echo -e "    ${BROWN}Example:${NC} ${AQUA}--clean --projects proj1 proj2${NC}"
+    echo
     echo -e "${BROWN}Default Values:${NC}"
     echo -e "  ${INDIGO}Workspace:${NC} ${AQUA}Current directory${NC} (where the script is executed)"
-    echo -e "  ${INDIGO}Branches:${NC} ${AQUA}master staging develop${NC}"
+    echo -e "  ${INDIGO}Branches:${NC} ${AQUA}master staging develop${NC} (${INDIGO}master${NC} is automatically replaced with ${AQUA}main${NC} if it exists)"
     echo -e "  ${INDIGO}Projects:${NC} ${AQUA}All directories in current directory${NC} (if no options provided)"
     echo
     echo -e "${BROWN}Auto-Detection:${NC}"
@@ -46,7 +51,8 @@ usage() {
     echo -e "  1. For each project, the script checks out each specified branch"
     echo -e "  2. Resets the branch to match the remote (${AQUA}origin/branch${NC})"
     echo -e "  3. Pulls the latest changes from remote"
-    echo -e "  4. Returns to the ${AQUA}develop${NC} branch (or first branch if develop doesn't exist)"
+    echo -e "  4. ${INDIGO}(Optional)${NC} Removes untracked files and directories if ${AQUA}--clean${NC} is specified"
+    echo -e "  5. Returns to the ${AQUA}develop${NC} branch (or first branch if develop doesn't exist)"
     echo
     echo -e "${BROWN}Examples:${NC}"
     echo -e "  ${AQUA}./syncBranches.sh${NC}"
@@ -104,6 +110,19 @@ read_txt_file() {
     eval "${array_name}=(\"\${temp_array[@]}\")"
 }
 
+# Function to detect default branch (main or master)
+# Returns "main" if it exists (locally or remotely), otherwise "master"
+# Usage: detect_default_branch
+detect_default_branch() {
+    # Check if main exists locally or remotely
+    if git show-ref --verify --quiet refs/heads/main 2>/dev/null || \
+       git show-ref --verify --quiet refs/remotes/origin/main 2>/dev/null; then
+        echo "main"
+    else
+        echo "master"
+    fi
+}
+
 # Check for help option
 if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
     usage
@@ -118,6 +137,7 @@ PROJECTS_LIST=()
 EXCLUDE_FILE=""
 EXCLUDE_LIST=()
 PROJECTS_TO_SYNC=()
+CLEAN_UNTRACKED=false
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -166,6 +186,10 @@ while [[ $# -gt 0 ]]; do
             else
                 shift 2
             fi
+            ;;
+        --clean)
+            CLEAN_UNTRACKED=true
+            shift
             ;;
         *)
             print_error "Unknown option: $1"
@@ -252,6 +276,9 @@ echo -e "${INDIGO}Projects to sync: ${AQUA}${#PROJECTS_TO_SYNC[@]}${NC}"
 if [ ${#PROJECTS_TO_SYNC[@]} -le 10 ]; then
     echo -e "${INDIGO}Project list: ${AQUA}${PROJECTS_TO_SYNC[*]}${NC}"
 fi
+if [ "$CLEAN_UNTRACKED" = true ]; then
+    echo -e "${INDIGO}Clean mode: ${AQUA}Enabled${NC} ${INDIGO}(will remove untracked files)${NC}"
+fi
 echo
 
 # Save current directory
@@ -290,9 +317,25 @@ for project in "${PROJECTS_TO_SYNC[@]}"; do
     # Reset to clean state
     git reset --hard > /dev/null 2>&1
     
+    # Detect default branch (main or master) for this repository
+    DEFAULT_BRANCH=$(detect_default_branch)
+    
     # Sync each branch
     for branch in $BRANCHES; do
+        # Replace "master" with detected default branch (main or master)
+        if [ "$branch" == "master" ]; then
+            branch="$DEFAULT_BRANCH"
+        fi
+        
         echo -e "${INDIGO}  Checking out [${AQUA}${branch}${INDIGO}] ...${NC}"
+        
+        # Clean untracked files before checkout if --clean option is specified
+        # This ensures a clean working directory before switching branches
+        if [ "$CLEAN_UNTRACKED" = true ]; then
+            echo -e "${INDIGO}    Cleaning untracked files and directories...${NC}"
+            git clean -f -d > /dev/null 2>&1
+            echo -e "${GREEN}    ✓ Cleaned untracked files${NC}"
+        fi
         
         # Checkout branch (create if doesn't exist locally)
         if ! git checkout "$branch" 2>/dev/null; then
@@ -305,13 +348,13 @@ for project in "${PROJECTS_TO_SYNC[@]}"; do
             fi
         fi
         
+        # Configure pull to use fast-forward only (set before reset/pull operations)
+        git config pull.ff only
+        
         # Reset to match remote
         if git rev-parse --verify "origin/$branch" > /dev/null 2>&1; then
             git reset --hard "origin/$branch"
         fi
-        
-        # Configure pull to use fast-forward only
-        git config pull.ff only
         
         # Pull latest changes
         if git pull > /dev/null 2>&1; then
@@ -322,12 +365,12 @@ for project in "${PROJECTS_TO_SYNC[@]}"; do
         echo
     done
     
-    # Return to develop branch (or first branch if develop doesn't exist)
+    # Return to develop branch (or default branch if develop doesn't exist)
     if git show-ref --verify --quiet refs/heads/develop; then
         git checkout develop > /dev/null 2>&1
     else
-        first_branch=$(echo $BRANCHES | awk '{print $1}')
-        git checkout "$first_branch" > /dev/null 2>&1
+        # Use detected default branch (main or master) as fallback
+        git checkout "$DEFAULT_BRANCH" > /dev/null 2>&1
     fi
     
     SYNCED_COUNT=$((SYNCED_COUNT + 1))

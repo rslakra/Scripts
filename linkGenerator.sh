@@ -193,7 +193,6 @@ ln -fs "${GIT_DIR}/showGitCommits.sh" "${USER_HOME}/showGitCommits" && print_suc
 ln -fs "${GIT_DIR}/showGitConfigs.sh" "${USER_HOME}/showGitConfigs" && print_success "showGitConfigs"
 ln -fs "${GIT_DIR}/showGitVersionHash.sh" "${USER_HOME}/showGitVersionHash" && print_success "showGitVersionHash"
 ln -fs "${GIT_DIR}/syncBranches.sh" "${USER_HOME}/syncBranches" && print_success "syncBranches"
-ln -fs "${GIT_DIR}/syncOriginBranches.sh" "${USER_HOME}/syncOriginBranches" && print_success "syncOriginBranches"
 ln -fs "${GIT_DIR}/tagBranch.sh" "${USER_HOME}/tagGitBranch" && print_success "tagGitBranch"
 ln -fs "${GIT_DIR}/tagRemove.sh" "${USER_HOME}/tagRemove" && print_success "tagRemove"
 
