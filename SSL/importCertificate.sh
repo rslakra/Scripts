@@ -36,10 +36,10 @@ usage() {
     echo -e "  ${BROWN}.pfx${NC}  - Personal Information Exchange (same as P12)"
     echo
     echo -e "${INDIGO}Examples:${NC}"
-    echo -e "  ${AQUA}./importCertificate.sh certificate.pem${NC}                    # Auto-detect from .pem extension"
-    echo -e "  ${AQUA}./importCertificate.sh certificate.p12${NC}                    # Auto-detect from .p12 extension"
-    echo -e "  ${AQUA}./importCertificate.sh --cert pem certificate.txt${NC}        # Force PEM type for file with wrong extension"
-    echo -e "  ${AQUA}./importCertificate.sh --cert p12 certificate${NC}           # Specify type for file with no extension"
+    echo -e "  ${AQUA}./importCertificate.sh certificate.pem${NC}                     # Auto-detect from .pem extension"
+    echo -e "  ${AQUA}./importCertificate.sh certificate.p12${NC}                     # Auto-detect from .p12 extension"
+    echo -e "  ${AQUA}./importCertificate.sh --cert pem certificate.txt${NC}          # Force PEM type for file with wrong extension"
+    echo -e "  ${AQUA}./importCertificate.sh --cert p12 certificate${NC}              # Specify type for file with no extension"
     echo
 }
 
