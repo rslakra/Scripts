@@ -1,14 +1,17 @@
 #!/bin/bash
 # Author: Rohtash Lakra
-# Migrate repository from Bitbucket to GitHub or vice-versa using SSH
+# Repository: migrate, backup (Git/SVN), or copy repo dirs
 # Usage:
-#   ./migrate-repository.sh --from <source_url> --to <dest_url> [options]
-#   ./migrate-repository.sh --help
+#   ./repository.sh migrate --from <source_url> --to <dest_url> [options]
+#   ./repository.sh backup-git <source_path_or_url> [target_path]
+#   ./repository.sh backup-svn <source_repo_path> [target_path]
+#   ./repository.sh copy <source_dir> <target_dir>
+#   ./repository.sh --help
 
 # Bootstrap: Find and source script_utils.sh, then setup environment
 _s="${BASH_SOURCE[0]}"; while [ -L "$_s" ]; do _l="$(readlink "$_s")"; [[ "$_l" != /* ]] && _s="$(cd "$(dirname "$_s")" && pwd)/$_l" || _s="$_l"; done; source "$(cd "$(dirname "$_s")/.." && pwd)/script_utils.sh" && setup_scripts_env "${BASH_SOURCE[0]}"
 
-# Default values
+# Default values (for migrate)
 SOURCE_URL=""
 DEST_URL=""
 TEMP_DIR=""
@@ -20,38 +23,44 @@ TAGS_ONLY=false
 # Usage function
 usage() {
     echo
+    echo -e "${DARKBLUE}Repository: migrate, backup (Git/SVN), or copy repo dirs.${NC}"
+    echo
+    echo -e "${DARKBLUE}Commands:${NC}"
+    echo -e "  ${AQUA}migrate${NC}       Migrate repo from Bitbucket to GitHub or vice-versa (--from, --to)"
+    echo -e "  ${AQUA}backup-git${NC}    Backup a Git repo (clone or copy to target)"
+    echo -e "  ${AQUA}backup-svn${NC}    Backup an SVN repo (svnadmin hotcopy)"
+    echo -e "  ${AQUA}copy${NC}          Full directory copy (ditto/cp) of repo folder(s)"
+    echo
     echo -e "${DARKBLUE}Usage:${NC}"
-    echo -e "  ${AQUA}./migrate-repository.sh --from <source_url> --to <dest_url> [options]${NC}"
+    echo -e "  ${AQUA}./repository.sh migrate --from <source_url> --to <dest_url> [options]${NC}"
+    echo -e "  ${AQUA}./repository.sh backup-git <source_path_or_url> [target_path]${NC}"
+    echo -e "  ${AQUA}./repository.sh backup-svn <source_repo_path> [target_path]${NC}"
+    echo -e "  ${AQUA}./repository.sh copy <source_dir> <target_dir>${NC}"
+    echo -e "  ${AQUA}./repository.sh --help${NC}"
     echo
-    echo -e "${DARKBLUE}Required Options:${NC}"
-    echo -e "  ${AQUA}--from <url>${NC}          Source repository URL (Bitbucket or GitHub)"
-    echo -e "  ${AQUA}--to <url>${NC}            Destination repository URL (GitHub or Bitbucket)"
+    echo -e "${BROWN}Migrate options:${NC}"
+    echo -e "  ${INDIGO}--from <url>${NC}          Source repo URL (Bitbucket or GitHub)"
+    echo -e "  ${INDIGO}--to <url>${NC}            Destination repo URL"
+    echo -e "  ${INDIGO}--temp-dir <path>${NC}     Temp dir for clone (default: /tmp/repository-<repo-name>)"
+    echo -e "  ${INDIGO}--keep-temp${NC}           Keep temp dir after migration"
+    echo -e "  ${INDIGO}--update-origin${NC}       Update origin remote to destination"
+    echo -e "  ${INDIGO}--branches-only${NC}       Migrate only branches"
+    echo -e "  ${INDIGO}--tags-only${NC}           Migrate only tags"
     echo
-    echo -e "${DARKBLUE}Optional Options:${NC}"
-    echo -e "  ${AQUA}--temp-dir <path>${NC}     Temporary directory for cloning (default: /tmp/migrate-<repo-name>)"
-    echo -e "  ${AQUA}--keep-temp${NC}           Keep temporary directory after migration"
-    echo -e "  ${AQUA}--update-origin${NC}       Update origin remote to point to destination after migration"
-    echo -e "  ${AQUA}--branches-only${NC}       Migrate only branches (skip tags)"
-    echo -e "  ${AQUA}--tags-only${NC}           Migrate only tags (skip branches)"
-    echo -e "  ${AQUA}--help${NC}                Show this help message"
+    echo -e "${BROWN}Backup:${NC}"
+    echo -e "  ${INDIGO}backup-git${NC}  Source: path or URL. Target default: <dirname>-<timestamp>.bak"
+    echo -e "  ${INDIGO}backup-svn${NC}  Source: SVN repo path. Target default: <source>-<timestamp>.bak"
     echo
     echo -e "${BROWN}Examples:${NC}"
-    echo -e "  ${AQUA}# Migrate from Bitbucket to GitHub${NC}"
-    echo -e "  ${INDIGO}./migrate-repository.sh --from git@bitbucket.org:username/repo.git --to git@github.com:username/repo.git${NC}"
-    echo
-    echo -e "  ${AQUA}# Migrate from GitHub to Bitbucket${NC}"
-    echo -e "  ${INDIGO}./migrate-repository.sh --from git@github.com:username/repo.git --to git@bitbucket.org:username/repo.git${NC}"
-    echo
-    echo -e "  ${AQUA}# Migrate and update origin to new location${NC}"
-    echo -e "  ${INDIGO}./migrate-repository.sh --from git@bitbucket.org:user/repo.git --to git@github.com:user/repo.git --update-origin${NC}"
-    echo
-    echo -e "  ${AQUA}# Migrate only branches${NC}"
-    echo -e "  ${INDIGO}./migrate-repository.sh --from git@bitbucket.org:user/repo.git --to git@github.com:user/repo.git --branches-only${NC}"
-    echo
-    echo -e "${INDIGO}Note:${NC} This script uses SSH for authentication. Make sure:"
-    echo -e "  1. Your SSH keys are set up for both source and destination"
-    echo -e "  2. You have access to both repositories"
-    echo -e "  3. The destination repository exists (empty or with initial commit)"
+    echo -e "  ${AQUA}# Migrate (Bitbucket → GitHub)${NC}"
+    echo -e "  ${INDIGO}./repository.sh migrate --from git@bitbucket.org:user/repo.git --to git@github.com:user/repo.git${NC}"
+    echo -e "  ${AQUA}# Backup Git repo${NC}"
+    echo -e "  ${INDIGO}./repository.sh backup-git ~/Documents/Workspaces/GitRepo ~/Documents/Repository/GitRepo-\$(date +%Y%m%d%H%M%S).bak${NC}"
+    echo -e "  ${AQUA}# Backup SVN repo${NC}"
+    echo -e "  ${INDIGO}./repository.sh backup-svn ~/Documents/Repository/SVNRepo ~/Documents/Repository/SVNRepo-\$(date +%Y%m%d%H%M%S).bak${NC}"
+    echo -e "  ${AQUA}# Copy repo dirs (clone/copy)${NC}"
+    echo -e "  ${INDIGO}./repository.sh copy ~/Documents/Repository/SVNRepo ~/Documents/Repository/SVNRepo.bak${NC}"
+    echo -e "  ${INDIGO}./repository.sh copy ~/Documents/Workspaces/GitRepo ~/Documents/Repository/GitRepo.bak${NC}"
     echo
 }
 
@@ -206,7 +215,145 @@ cleanup() {
     fi
 }
 
-# Parse arguments
+# --- backup-git: clone/copy Git repo to target ---
+do_backup_git() {
+    local src="$1" tgt="$2"
+    if [ -z "$src" ]; then
+        print_error "Usage: ./repository.sh backup-git <source_path_or_url> [target_path]"
+        usage
+        exit 2
+    fi
+    local ts
+    ts=$(date +%Y%m%d%H%M%S)
+    if [ -z "$tgt" ]; then
+        local base
+        base=$(basename "$src" .git)
+        tgt="$(dirname "$src")/${base}-${ts}.bak"
+    fi
+    if [ -d "$tgt" ]; then
+        print_error "Target already exists: $tgt"
+        exit 2
+    fi
+    print_header "Backup Git Repository"
+    echo -e "${INDIGO}Source: ${AQUA}${src}${NC}"
+    echo -e "${INDIGO}Target: ${AQUA}${tgt}${NC}"
+    echo
+    if git clone "$src" "$tgt" 2>/dev/null; then
+        print_success "Git repository backed up to: $tgt"
+    else
+        print_error "Failed to clone/copy Git repository"
+        exit 2
+    fi
+    echo
+}
+
+# --- backup-svn: svnadmin hotcopy ---
+do_backup_svn() {
+    local src="$1" tgt="$2"
+    if [ -z "$src" ]; then
+        print_error "Usage: ./repository.sh backup-svn <source_repo_path> [target_path]"
+        usage
+        exit 2
+    fi
+    if [ ! -d "$src" ]; then
+        print_error "Source repository not found: $src"
+        exit 2
+    fi
+    if ! command -v svnadmin &>/dev/null; then
+        print_error "svnadmin not found. Install Subversion."
+        exit 2
+    fi
+    local ts
+    ts=$(date +%Y%m%d%H%M%S)
+    if [ -z "$tgt" ]; then
+        tgt="${src}-${ts}.bak"
+    fi
+    if [ -d "$tgt" ]; then
+        print_error "Target already exists: $tgt"
+        exit 2
+    fi
+    print_header "Backup SVN Repository"
+    echo -e "${INDIGO}Source: ${AQUA}${src}${NC}"
+    echo -e "${INDIGO}Target: ${AQUA}${tgt}${NC}"
+    echo
+    if svnadmin hotcopy "$src" "$tgt"; then
+        print_success "SVN repository backed up to: $tgt"
+    else
+        print_error "svnadmin hotcopy failed"
+        exit 2
+    fi
+    echo
+}
+
+# --- copy: full directory copy with ditto/cp ---
+do_copy() {
+    local src="$1" tgt="$2"
+    if [ -z "$src" ] || [ -z "$tgt" ]; then
+        print_error "Usage: ./repository.sh copy <source_dir> <target_dir>"
+        usage
+        exit 2
+    fi
+    if [ ! -d "$src" ]; then
+        print_error "Source directory not found: $src"
+        exit 2
+    fi
+    print_header "Copy Repository"
+    echo -e "${INDIGO}Source: ${AQUA}${src}${NC}"
+    echo -e "${INDIGO}Target: ${AQUA}${tgt}${NC}"
+    echo
+    if command -v ditto &>/dev/null; then
+        ditto -V "$src" "$tgt" || { print_error "ditto failed"; exit 2; }
+    else
+        mkdir -p "$tgt" && cp -a "$src"/. "$tgt"/ || { print_error "cp failed"; exit 2; }
+    fi
+    print_success "Copied to: $tgt"
+    echo
+}
+
+# --- Command dispatch: backup-git, backup-svn, copy run here; migrate parsed below ---
+CMD=""
+if [[ $# -gt 0 ]]; then
+    case "$1" in
+        backup-git)
+            CMD="backup-git"
+            shift
+            do_backup_git "$1" "$2"
+            exit 0
+            ;;
+        backup-svn)
+            CMD="backup-svn"
+            shift
+            do_backup_svn "$1" "$2"
+            exit 0
+            ;;
+        copy)
+            CMD="copy"
+            shift
+            do_copy "$1" "$2"
+            exit 0
+            ;;
+        migrate)
+            shift
+            ;;
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        *)
+            if [[ "$1" != --* ]]; then
+                print_error "Unknown command: $1"
+                usage
+                exit 2
+            else
+                print_error "Use 'migrate' command with --from and --to, e.g. ./repository.sh migrate --from <url> --to <url>"
+                usage
+                exit 2
+            fi
+            ;;
+    esac
+fi
+
+# Parse migrate arguments (--from, --to, etc.)
 while [[ $# -gt 0 ]]; do
     case $1 in
         --from)
@@ -249,11 +396,11 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Validate required arguments
+# Validate required arguments (migrate)
 if [ -z "$SOURCE_URL" ] || [ -z "$DEST_URL" ]; then
-    print_error "Both --from and --to options are required"
+    print_error "For migrate, --from and --to are required. See --help for other commands (backup-git, backup-svn, copy)."
     usage
-    exit 1
+    exit 2
 fi
 
 # Validate URL formats
@@ -281,7 +428,7 @@ DEST_REPO_NAME=$(extract_repo_name "$DEST_URL")
 
 # Set default temp directory if not provided
 if [ -z "$TEMP_DIR" ]; then
-    TEMP_DIR="/tmp/migrate-${SOURCE_REPO_NAME}-$(date +%s)"
+    TEMP_DIR="/tmp/repository-${SOURCE_REPO_NAME}-$(date +%s)"
 fi
 
 # Print header

@@ -178,7 +178,7 @@ export VCS_DIR="${SCRIPTS_HOME}/VCS"
 echo -e "${BLUEVIOLET}VCS Links${NC}"
 
 # VCS General Links
-ln -fs "${VCS_DIR}/migrate-repository.sh" "${USER_HOME}/migrateRepository" && print_success "migrateRepository"
+ln -fs "${VCS_DIR}/repository.sh" "${USER_HOME}/repository" && print_success "repository"
 
 # ----------------<Git Links>----------------
 export GIT_DIR="${VCS_DIR}/Git"
