@@ -7,6 +7,7 @@
 #   ./build.sh osx-framework                    # Create OS X framework (requires Xcode env vars)
 #   ./build.sh dmg-sign <file.dmg> [identity]   # Sign DMG with codesign
 #   ./build.sh dmg-verify <file.dmg>            # Verify signed DMG (codesign -v)
+#   ./build.sh osx-dylib [sources] [output] [name]  # Build OS X .jnilib (Java native lib) from C sources
 #   ./build.sh --help
 
 # Bootstrap: Find and source script_utils.sh, then setup environment
@@ -25,6 +26,7 @@ usage() {
     echo -e "  ${AQUA}./build.sh osx-framework${NC}                     # Create OS X framework (Xcode env vars)"
     echo -e "  ${AQUA}./build.sh dmg-sign <file.dmg> [identity]${NC}    # Sign DMG (codesign -s)"
     echo -e "  ${AQUA}./build.sh dmg-verify <file.dmg>${NC}             # Verify signed DMG (codesign -v)"
+    echo -e "  ${AQUA}./build.sh osx-dylib [sources] [output] [name]${NC} # Build OS X .jnilib from C sources (default: *.c, ., libnative.jnilib)"
     echo -e "  ${AQUA}./build.sh --help${NC}                            # Show this help"
     echo
     echo -e "${BROWN}Requirements:${NC}"
@@ -33,6 +35,7 @@ usage() {
     echo -e "  ${INDIGO}osx-framework:${NC} BUILT_PRODUCTS_DIR, PRODUCT_NAME, TARGET_BUILD_DIR, PUBLIC_HEADERS_FOLDER_PATH (Xcode)"
     echo -e "  ${INDIGO}dmg-sign:${NC}      Path to .dmg; optional identity (e.g. \"Developer ID Application: Name (ID)\")"
     echo -e "  ${INDIGO}dmg-verify:${NC}    Path to signed .dmg"
+    echo -e "  ${INDIGO}osx-dylib:${NC}     Run from dir with .c sources; optional SOURCE_FILES env; needs JavaVM/Cocoa frameworks"
     echo
 }
 
@@ -177,6 +180,50 @@ do_dmg_sign() {
     fi
 }
 
+# OS X dynamic library (.jnilib): compile C sources to Java native lib with Cocoa/JavaVM
+do_osx_dylib() {
+    local sources="${1:-${SOURCE_FILES:-*.c}}"
+    local out_dir="${2:-.}"
+    local lib_name="${3:-${LIB_NAME:-libnative.jnilib}}"
+    local java_headers
+    local sdk_path
+    sdk_path=$(xcrun --show-sdk-path 2>/dev/null) || true
+    if [ -n "${JAVA_HOME}" ]; then
+        java_headers="${JAVA_HOME}/include"
+    else
+        java_headers=$(find /Library/Java/JavaVirtualMachines -name "include" -type d 2>/dev/null | head -1)
+    fi
+    local cocoa_headers="/System/Library/Frameworks/Cocoa.framework/Headers"
+    if [ -z "$java_headers" ] || [ ! -d "$java_headers" ]; then
+        print_error "Java headers not found. Set JAVA_HOME or install JDK."
+        exit 1
+    fi
+    print_header "OS X Dynamic Library (.jnilib)"
+    echo -e "${INDIGO}Sources: ${AQUA}${sources}${NC}"
+    echo -e "${INDIGO}Output:  ${AQUA}${out_dir}/${lib_name}${NC}"
+    echo
+    rm -f ./*.o 2>/dev/null || true
+    local cflags="-fPIC -std=gnu99"
+    [ -n "$sdk_path" ] && cflags="${cflags} -isysroot ${sdk_path}"
+    echo -e "${BROWN}Compiling...${NC}"
+    # shellcheck disable=SC2086
+    gcc -v ${cflags} -c -I"${java_headers}" -I"${java_headers}/darwin" -I"${cocoa_headers}" ${sources} 2>/dev/null || clang -v ${cflags} -c -I"${java_headers}" -I"${java_headers}/darwin" -I"${cocoa_headers}" ${sources}
+    if [ $? -ne 0 ]; then
+        print_error "Compilation failed"
+        exit 1
+    fi
+    mkdir -p "$out_dir"
+    echo -e "${BROWN}Linking...${NC}"
+    # shellcheck disable=SC2086
+    gcc -v -dynamiclib -o "${out_dir}/${lib_name}" ./*.o -framework JavaVM -framework Cocoa 2>/dev/null || clang -v -dynamiclib -o "${out_dir}/${lib_name}" ./*.o -framework JavaVM -framework Cocoa
+    if [ $? -eq 0 ]; then
+        print_success "Built: ${out_dir}/${lib_name}"
+    else
+        print_error "Linking failed"
+        exit 1
+    fi
+}
+
 # Parse
 if [ $# -eq 0 ] || [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
     usage
@@ -192,6 +239,9 @@ case "$1" in
         ;;
     osx-framework|framework)
         do_framework
+        ;;
+    osx-dylib)
+        do_osx_dylib "$2" "$3" "$4"
         ;;
     dmg-verify)
         do_dmg_verify "$2"
