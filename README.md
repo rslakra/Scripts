@@ -40,6 +40,7 @@ After running `linkGenerator.sh`, you can use scripts directly from your home di
 ~/portUsage             # Check/free port usage
 ~/showGitCommits         # View Git commit logs
 ~/mergeBranches         # Merge Git branches
+~/listPullRequests      # List GitHub pull requests
 ```
 
 ---
@@ -119,6 +120,13 @@ After running `linkGenerator.sh`, you can use scripts directly from your home di
 - **`VCS/Git/mergeBranches.sh`** - Merge source branch into target branch
   ```bash
   ./mergeBranches.sh <SOURCE_BRANCH> <TARGET_BRANCH>
+  ```
+
+- **`VCS/Git/listPullRequests.sh`** - List GitHub pull requests using git
+  ```bash
+  ./listPullRequests.sh --repo owner/repo              # List open PRs (default)
+  ./listPullRequests.sh --repo owner/repo --type closed # List closed PRs
+  ./listPullRequests.sh --remote origin --limit 50      # Use origin remote from current repo
   ```
 
 - **`VCS/Git/tagRemove.sh`** - Remove Git tags

@@ -166,6 +166,11 @@ echo -e "${BLUEVIOLET}BuildTools Links${NC}"
 export BUILD_TOOLS="${SCRIPTS_HOME}/BuildTools"
 ln -fs "${BUILD_TOOLS}/Homebrew/installHomebrew.sh" "${USER_HOME}/installHomebrew" && print_success "installHomebrew"
 
+# ----------------<Gulp Links>----------------
+echo -e "${BLUEVIOLET}Gulp Links${NC}"
+export GULP_DIR="${SCRIPTS_HOME}/Gulp"
+ln -fs "${GULP_DIR}/installer.sh" "${USER_HOME}/installer" && print_success "installer"
+
 # ----------------<Docker Links>----------------
 echo -e "${BLUEVIOLET}Docker Links${NC}"
 export DOCKER_DIR="${SCRIPTS_HOME}/IaC/Docker"
@@ -186,6 +191,7 @@ echo -e "${INDIGO}  Git Links${NC}"
 ln -fs "${GIT_DIR}/addSSHKeys.sh" "${USER_HOME}/addSSHKeys" && print_success "addSSHKeys"
 ln -fs "${GIT_DIR}/fetchTags.sh" "${USER_HOME}/fetchTags" && print_success "fetchTags"
 ln -fs "${GIT_DIR}/fixEmailPrivacyRestrictions.sh" "${USER_HOME}/fixEmailPrivacyRestrictions" && print_success "fixEmailPrivacyRestrictions"
+ln -fs "${GIT_DIR}/listPullRequests.sh" "${USER_HOME}/listPullRequests" && print_success "listPullRequests"
 ln -fs "${GIT_DIR}/mergeBranches.sh" "${USER_HOME}/mergeBranches" && print_success "mergeBranches"
 ln -fs "${GIT_DIR}/removeBranch.sh" "${USER_HOME}/removeBranch" && print_success "removeBranch"
 ln -fs "${GIT_DIR}/setGitDetails.sh" "${USER_HOME}/setGitDetails" && print_success "setGitDetails"
