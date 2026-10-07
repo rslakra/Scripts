@@ -4,7 +4,7 @@
 # Usage:
 #   ./linkGenerator.sh              # Generate all symbolic links
 #   ./linkGenerator.sh --remove     # Remove all broken symbolic links in ~
-#   ./linkGenerator.sh --soft-links # List all symbolic links in ~
+#   ./linkGenerator.sh --symbolic # List all symbolic links in ~
 
 # ----------------< Variables >----------------
 export CUR_DIR="${PWD}"
@@ -19,9 +19,9 @@ _s="${BASH_SOURCE[0]}"; while [ -L "$_s" ]; do _l="$(readlink "$_s")"; [[ "$_l" 
 usage() {
     echo
     echo -e "${DARKBLUE}Usage:${NC}"
-    echo -e "  ${AQUA}./linkGenerator.sh${NC}           # Generate all symbolic links"
-    echo -e "  ${AQUA}./linkGenerator.sh --remove${NC}  # Remove all broken symbolic links in ~"
-    echo -e "  ${AQUA}./linkGenerator.sh --soft-links${NC} # List all symbolic links in ~"
+    echo -e "  ${AQUA}./linkGenerator.sh${NC}               # Generate all symbolic links"
+    echo -e "  ${AQUA}./linkGenerator.sh --remove${NC}      # Remove all broken symbolic links in ~"
+    echo -e "  ${AQUA}./linkGenerator.sh --symbolic${NC}    # List all symbolic links in ~"
     echo
 }
 
@@ -136,7 +136,7 @@ list_soft_links() {
 if [ "$1" == "--remove" ]; then
     remove_broken_links
     exit 0
-elif [ "$1" == "--soft-links" ]; then
+elif [ "$1" == "--symbolic" ]; then
     list_soft_links
     exit 0
 elif [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
@@ -230,6 +230,7 @@ ln -fs "${OSX_DIR}/findLargeSizeFiles.sh" "${USER_HOME}/findLargeSizeFiles" && p
 ln -fs "${OSX_DIR}/xcode.sh" "${USER_HOME}/xcode" && print_success "xcode"
 ln -fs "${OSX_DIR}/showComputerName.sh" "${USER_HOME}/showComputerName" && print_success "showComputerName"
 ln -fs "${OSX_DIR}/zipFolder.sh" "${USER_HOME}/zipFolder" && print_success "zipFolder"
+ln -fs "${OSX_DIR}/zipFolders.sh" "${USER_HOME}/zipFolders" && print_success "zipFolders"
 
 # ----------------<Variables>----------------
 

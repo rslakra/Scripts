@@ -94,6 +94,75 @@ git config --local user.name "Rohtash Lakra"
 | junk    | Throwaway branch; created to experiment                        |
 
 
+
+
+## Scripts
+
+---
+
+
+
+### [syncBranches.sh](http://syncBranches.sh)
+
+Syncs Git branches across multiple projects in a workspace. Run it from the workspace directory (the folder that contains your project repos).
+
+**Default branches synced:** `staging`, `develop`, and the repo's default branch (detected from `origin/HEAD`, usually `main` or `master`).
+
+**What it does for each project:**
+
+1. Resolves which projects to sync (from options, `projects.txt`, or all subdirectories).
+2. Applies any exclusions from `excludes.txt` or `--sync`.
+3. Runs `git fetch origin --prune` to refresh remote refs.
+4. Detects the default branch from the remote (`git ls-remote --symref origin HEAD`; not stale local `origin/HEAD`).
+5. Syncs `staging` and `develop` first (skipped with a warning if they do not exist).
+6. Syncs the default branch **last** and leaves the repo checked out on it. Each branch sync:
+   - Optionally runs `git clean -f -d` when `--clean` is set.
+   - Checks out the branch (creates a local tracking branch from `origin/<branch>` if needed).
+   - Runs `git reset --hard origin/<branch>` so local matches remote (no separate `git pull`).
+7. Prints a summary of synced and failed projects.
+
+**Options:**
+
+
+| Option                                 | Description                                                                |
+| -------------------------------------- | -------------------------------------------------------------------------- |
+| `--projects <proj1> <proj2> ...`       | Sync only the named project directories                                    |
+| `--sync <projects.txt> [excludes.txt]` | Read project list from a file; optional second file lists projects to skip |
+| `--clean`                              | Remove untracked files and directories before each branch checkout         |
+| `--help`, `-h`                         | Show help                                                                  |
+
+
+**Auto-detection (no options):** If `projects.txt` and/or `excludes.txt` exist in the current directory, they are used automatically. Otherwise, every subdirectory in the workspace is treated as a project.
+
+**Examples:**
+
+```shell
+# From your workspace directory
+./syncBranches.sh
+
+# Sync specific projects
+./syncBranches.sh --projects api-service web-app
+
+# Use project lists from files
+./syncBranches.sh --sync projects.txt excludes.txt
+
+# Sync and discard untracked files in each repo
+./syncBranches.sh --clean --projects api-service
+
+# Via symlink created by linkGenerator.sh
+cd ~/Workspace && ~/syncBranches
+```
+
+**Notes:**
+
+- Each entry must be a directory containing a `.git` folder; others are skipped with a warning.
+- Branches that do not exist locally or on `origin` are skipped with a warning.
+- The default branch is queried from the remote HEAD symref, so a stale local `origin/HEAD` (e.g. pointing to `qa`) will not be used.
+- The default branch is always synced last so it remains the active checkout.
+- This script resets local branches to match remote; uncommitted changes can be lost.
+
+
+
 # Reference
 
 ---

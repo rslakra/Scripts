@@ -15,7 +15,10 @@
 #   --timestamp               Create timestamped version
 #   --no-exclusions           Don't exclude common build/cache files
 #   --help                    Show this help message
-clear
+# Set ZIP_FOLDER_NO_CLEAR=1 to skip clearing the screen (used by zipFolders.sh)
+if [[ -z "${ZIP_FOLDER_NO_CLEAR}" ]]; then
+    clear
+fi
 
 # Bootstrap: Find and source script_utils.sh, then setup environment
 _s="${BASH_SOURCE[0]}"; while [ -L "$_s" ]; do _l="$(readlink "$_s")"; [[ "$_l" != /* ]] && _s="$(cd "$(dirname "$_s")" && pwd)/$_l" || _s="$_l"; done; source "$(cd "$(dirname "$_s")/../.." && pwd)/script_utils.sh" && setup_scripts_env "${BASH_SOURCE[0]}"
@@ -38,7 +41,7 @@ usage() {
    echo -e "${BROWN}Examples:${NC}"
    echo "  ./zipFolder.sh                                    # Zips current directory"
    echo "  ./zipFolder.sh /path/to/folder                    # Zips specified folder"
-   echo "  ./zipFolder.sh /path/to/folder /output/path      # Zips to specified output path"
+   echo "  ./zipFolder.sh /path/to/folder /output/path       # Zips to specified output path"
    echo "  ./zipFolder.sh --include-node-modules .           # Zips current dir with node_modules"
    echo "  ./zipFolder.sh --timestamp /path/to/folder        # Creates timestamped zip"
    echo

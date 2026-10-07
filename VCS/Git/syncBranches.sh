@@ -38,7 +38,7 @@ usage() {
     echo
     echo -e "${BROWN}Default Values:${NC}"
     echo -e "  ${INDIGO}Workspace:${NC} ${AQUA}Current directory${NC} (where the script is executed)"
-    echo -e "  ${INDIGO}Branches:${NC} ${AQUA}master staging develop${NC} (${INDIGO}master${NC} is automatically replaced with ${AQUA}main${NC} if it exists)"
+    echo -e "  ${INDIGO}Branches:${NC} ${AQUA}staging develop${NC} + default branch (${INDIGO}detected from remote HEAD${NC})"
     echo -e "  ${INDIGO}Projects:${NC} ${AQUA}All directories in current directory${NC} (if no options provided)"
     echo
     echo -e "${BROWN}Auto-Detection:${NC}"
@@ -49,10 +49,10 @@ usage() {
     echo
     echo -e "${BROWN}How It Works:${NC}"
     echo -e "  1. For each project, the script checks out each specified branch"
-    echo -e "  2. Resets the branch to match the remote (${AQUA}origin/branch${NC})"
-    echo -e "  3. Pulls the latest changes from remote"
+    echo -e "  2. Fetches latest refs from ${AQUA}origin${NC}"
+    echo -e "  3. Resets each branch to match ${AQUA}origin/branch${NC}"
     echo -e "  4. ${INDIGO}(Optional)${NC} Removes untracked files and directories if ${AQUA}--clean${NC} is specified"
-    echo -e "  5. Returns to the ${AQUA}develop${NC} branch (or first branch if develop doesn't exist)"
+    echo -e "  5. Syncs the default branch last and leaves the repo checked out on it"
     echo
     echo -e "${BROWN}Examples:${NC}"
     echo -e "  ${AQUA}./syncBranches.sh${NC}"
@@ -110,17 +110,72 @@ read_txt_file() {
     eval "${array_name}=(\"\${temp_array[@]}\")"
 }
 
-# Function to detect default branch (main or master)
-# Returns "main" if it exists (locally or remotely), otherwise "master"
-# Usage: detect_default_branch
+# Detect the repository default branch from the remote (not stale local origin/HEAD)
 detect_default_branch() {
-    # Check if main exists locally or remotely
-    if git show-ref --verify --quiet refs/heads/main 2>/dev/null || \
-       git show-ref --verify --quiet refs/remotes/origin/main 2>/dev/null; then
+    local default_branch
+
+    # Authoritative: ask the remote which branch HEAD points to
+    default_branch="$(git ls-remote --symref origin HEAD 2>/dev/null \
+        | sed -n 's/^ref: refs\/heads\/\([^[:space:]]*\).*/\1/p' | head -1)"
+    if [ -n "$default_branch" ]; then
+        echo "$default_branch"
+        return 0
+    fi
+
+    # Refresh local origin/HEAD from remote, then read it
+    git remote set-head origin -a > /dev/null 2>&1
+    default_branch="$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')"
+    if [ -n "$default_branch" ]; then
+        echo "$default_branch"
+        return 0
+    fi
+
+    default_branch="$(git remote show origin 2>/dev/null | awk '/HEAD branch/ { print $NF; exit }')"
+    if [ -n "$default_branch" ] && [ "$default_branch" != "(unknown)" ]; then
+        echo "$default_branch"
+        return 0
+    fi
+
+    if git show-ref --verify --quiet refs/remotes/origin/main 2>/dev/null; then
         echo "main"
     else
         echo "master"
     fi
+}
+
+# Sync a local branch to match origin/<branch>
+sync_branch_to_origin() {
+    local branch="$1"
+
+    if [ "$CLEAN_UNTRACKED" = true ]; then
+        echo -e "${INDIGO}    Cleaning untracked files and directories...${NC}"
+        git clean -f -d > /dev/null 2>&1
+        echo -e "${GREEN}    ✓ Cleaned untracked files${NC}"
+    fi
+
+    if ! git checkout "$branch" 2>/dev/null; then
+        if git checkout -b "$branch" "origin/$branch" 2>/dev/null; then
+            echo -e "${INDIGO}    Created local branch ${AQUA}${branch}${INDIGO} from origin${NC}"
+        else
+            print_warning "    Branch ${branch} does not exist locally or remotely, skipping..."
+            return 1
+        fi
+    fi
+
+    if ! git rev-parse --verify "origin/$branch" > /dev/null 2>&1; then
+        print_warning "    Remote branch origin/${branch} not found, skipping..."
+        return 1
+    fi
+
+    # Fast-forward like `git pull` (prints the per-file diffstat). The fetch was
+    # already done, so merging origin/<branch> is equivalent to a pull.
+    # If it can't fast-forward (diverged or local changes in the way), force-match origin.
+    if ! git merge --ff-only "origin/$branch"; then
+        print_warning "    Cannot fast-forward ${branch}, resetting to origin/${branch}..."
+        git reset --hard "origin/$branch"
+    fi
+    echo -e "${GREEN}    ✓ Synced ${branch}${NC}"
+    return 0
 }
 
 # Check for help option
@@ -131,7 +186,7 @@ fi
 
 # Initialize variables
 WORKSPACE_DIR="${PWD}"  # Use current directory where script is executed
-BRANCHES="master staging develop"
+BRANCHES="staging develop"
 PROJECTS_FILE=""
 PROJECTS_LIST=()
 EXCLUDE_FILE=""
@@ -271,7 +326,7 @@ fi
 # Print summary
 print_header "Sync Branches"
 echo -e "${INDIGO}Workspace: ${AQUA}${WORKSPACE_DIR}${NC}"
-echo -e "${INDIGO}Branches: ${AQUA}${BRANCHES}${NC}"
+echo -e "${INDIGO}Branches: ${AQUA}${BRANCHES} + default branch${NC}"
 echo -e "${INDIGO}Projects to sync: ${AQUA}${#PROJECTS_TO_SYNC[@]}${NC}"
 if [ ${#PROJECTS_TO_SYNC[@]} -le 10 ]; then
     echo -e "${INDIGO}Project list: ${AQUA}${PROJECTS_TO_SYNC[*]}${NC}"
@@ -314,64 +369,28 @@ for project in "${PROJECTS_TO_SYNC[@]}"; do
         continue
     }
     
-    # Reset to clean state
-    git reset --hard > /dev/null 2>&1
-    
-    # Detect default branch (main or master) for this repository
+    if ! git fetch origin --prune > /dev/null 2>&1; then
+        print_warning "Failed to fetch from origin for ${project}. Continuing with local remote refs..."
+    fi
+
     DEFAULT_BRANCH=$(detect_default_branch)
-    
-    # Sync each branch
+    echo -e "${INDIGO}  Default branch: ${AQUA}${DEFAULT_BRANCH}${NC}"
+
     for branch in $BRANCHES; do
-        # Replace "master" with detected default branch (main or master)
-        if [ "$branch" == "master" ]; then
-            branch="$DEFAULT_BRANCH"
+        if [ "$branch" = "$DEFAULT_BRANCH" ]; then
+            continue
         fi
-        
+
         echo -e "${INDIGO}  Checking out [${AQUA}${branch}${INDIGO}] ...${NC}"
-        
-        # Clean untracked files before checkout if --clean option is specified
-        # This ensures a clean working directory before switching branches
-        if [ "$CLEAN_UNTRACKED" = true ]; then
-            echo -e "${INDIGO}    Cleaning untracked files and directories...${NC}"
-            git clean -f -d > /dev/null 2>&1
-            echo -e "${GREEN}    ✓ Cleaned untracked files${NC}"
-        fi
-        
-        # Checkout branch (create if doesn't exist locally)
-        if ! git checkout "$branch" 2>/dev/null; then
-            # Try to checkout from remote
-            if git checkout -b "$branch" "origin/$branch" 2>/dev/null; then
-                echo -e "${INDIGO}    Created local branch ${AQUA}${branch}${INDIGO} from origin${NC}"
-            else
-                print_warning "    Branch ${branch} does not exist locally or remotely, skipping..."
-                continue
-            fi
-        fi
-        
-        # Configure pull to use fast-forward only (set before reset/pull operations)
-        git config pull.ff only
-        
-        # Reset to match remote
-        if git rev-parse --verify "origin/$branch" > /dev/null 2>&1; then
-            git reset --hard "origin/$branch"
-        fi
-        
-        # Pull latest changes
-        if git pull > /dev/null 2>&1; then
-            echo -e "${GREEN}    ✓ Synced ${branch}${NC}"
-        else
-            print_warning "    Failed to pull ${branch}"
-        fi
+        sync_branch_to_origin "$branch"
         echo
     done
-    
-    # Return to develop branch (or default branch if develop doesn't exist)
-    if git show-ref --verify --quiet refs/heads/develop; then
-        git checkout develop > /dev/null 2>&1
-    else
-        # Use detected default branch (main or master) as fallback
-        git checkout "$DEFAULT_BRANCH" > /dev/null 2>&1
+
+    echo -e "${INDIGO}  Checking out [${AQUA}${DEFAULT_BRANCH}${INDIGO}] (default) ...${NC}"
+    if ! sync_branch_to_origin "$DEFAULT_BRANCH"; then
+        print_warning "  Could not sync default branch ${DEFAULT_BRANCH} for ${project}"
     fi
+    echo
     
     SYNCED_COUNT=$((SYNCED_COUNT + 1))
 done
