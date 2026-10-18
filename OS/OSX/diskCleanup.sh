@@ -40,7 +40,7 @@ if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
 fi
 
 # Default files/folders to remove (no ._* here; handled separately)
-defaultCleanupEntries=".DS_Store .idea .intellijPlatform .mvn .pyc .pyo .svn .terraform .tmp .venv .vscode-test __pycache__ bower_components build dist node_modules target venv"
+defaultCleanupEntries=".DS_Store .idea .intellijPlatform .mvn .pyc .pyo .pytest_cache .svn .terraform .tmp .venv .vscode-test __pycache__ bower_components build dist node_modules target venv"
 
 # Parse optional --files-only / --dirs-only when used with a name
 TYPE_FILTER=""   # "" = both, "f" = files only, "d" = dirs only
