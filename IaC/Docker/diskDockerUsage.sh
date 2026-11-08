@@ -25,6 +25,9 @@ usage() {
     echo -e "  ${INDIGO}-r, --remove IMAGE${NC}      Remove one image (ID or name:tag) after showing side effects and asking"
     echo -e "  ${INDIGO}-p, --prune${NC}             Remove all dangling images (asks first)"
     echo -e "  ${INDIGO}-P, --prune-unused${NC}      Remove ALL images not used by any container (asks first)"
+    echo -e "  ${INDIGO}-s, --system${NC}            Also show 'docker system df' totals (volumes, build cache); slow on big setups"
+    echo -e "  ${INDIGO}-t, --timing${NC}            Time the docker commands this script uses (to find what is slow);"
+    echo -e "                            add --system to time 'docker system df' as well"
     echo -e "  ${INDIGO}-g, --guide${NC}             Show all removal commands and their side effects"
     echo -e "  ${INDIGO}-h, --help${NC}              Show this help message"
     echo
@@ -42,6 +45,7 @@ usage() {
     echo -e "  ${AQUA}~/diskDockerUsage -u${NC}                     # What can be removed without breaking a container"
     echo -e "  ${AQUA}~/diskDockerUsage -r myapp:latest${NC}        # Remove one image (with confirmation)"
     echo -e "  ${AQUA}~/diskDockerUsage -p${NC}                     # Remove dangling images"
+    echo -e "  ${AQUA}~/diskDockerUsage -t${NC}                     # Time the docker commands (find what is slow)"
     echo
 }
 
@@ -105,6 +109,34 @@ show_desktop_disk() {
             echo
         fi
     done
+}
+
+# Times one command (output discarded) and prints "<seconds>s  <label>"
+time_command() {
+    local label="$1"
+    shift
+    local TIMEFORMAT='%R'
+    local elapsed
+    elapsed=$( { time "$@" >/dev/null 2>&1; } 2>&1 )
+    printf "  %8ss  %s\n" "$elapsed" "$label"
+}
+
+# Times the docker commands this script relies on, to find out which one is slow
+time_docker_commands() {
+    print_header "Docker Command Timing"
+    echo -e "${INDIGO}Timing each command, slow ones can take a while ...${NC}"
+    echo
+    time_command "docker version --format '{{.Server.Version}}'" docker version --format '{{.Server.Version}}'
+    time_command "docker image ls -aq --no-trunc" docker image ls -aq --no-trunc
+    time_command "docker ps -aq" docker ps -aq
+    if [ "$SHOW_SYSTEM" = true ]; then
+        time_command "docker system df" docker system df
+    else
+        echo -e "  ${BROWN}(add --system to time 'docker system df', usually the slowest)${NC}"
+    fi
+    echo
+    print_success "Done!"
+    echo
 }
 
 # Removes a single image after showing details and asking for confirmation
@@ -199,8 +231,9 @@ prune_images() {
 TOP_N=0
 ORDER="desc"
 FILTER="all"        # all | unused | dangling
-ACTION="list"       # list | remove | prune | prune_all | guide
+ACTION="list"       # list | remove | prune | prune_all | guide | timing
 REMOVE_REF=""
+SHOW_SYSTEM=false   # run the slow 'docker system df' only when asked
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -243,6 +276,14 @@ while [[ $# -gt 0 ]]; do
             ACTION="guide"
             shift
             ;;
+        -s|--system)
+            SHOW_SYSTEM=true
+            shift
+            ;;
+        -t|--timing)
+            ACTION="timing"
+            shift
+            ;;
         *)
             print_error "Unknown option: $1"
             usage
@@ -266,7 +307,7 @@ if ! command -v docker >/dev/null 2>&1; then
     print_error "docker is not installed or not in PATH"
     exit 1
 fi
-if ! docker info >/dev/null 2>&1; then
+if ! docker version --format '{{.Server.Version}}' >/dev/null 2>&1; then
     print_error "Cannot connect to the Docker daemon. Is Docker running?"
     exit 1
 fi
@@ -275,14 +316,18 @@ case "$ACTION" in
     remove)    remove_image "$REMOVE_REF"; exit 0 ;;
     prune)     prune_images false; exit 0 ;;
     prune_all) prune_images true; exit 0 ;;
+    timing)    time_docker_commands; exit 0 ;;
 esac
 
 print_header "Docker Disk Usage"
 
-# Overall usage by type (Images, Containers, Local Volumes, Build Cache) with reclaimable space
-echo -e "${AQUA}Overall Docker usage:${NC}"
-docker system df
-echo
+# Overall usage by type (Images, Containers, Local Volumes, Build Cache) with reclaimable space.
+# Slow on large setups (it measures every volume and the build cache), so it is opt-in.
+if [ "$SHOW_SYSTEM" = true ]; then
+    echo -e "${AQUA}Overall Docker usage:${NC} (this can take a while)"
+    docker system df
+    echo
+fi
 show_desktop_disk
 
 # Collect image and container data into temp files
@@ -367,7 +412,7 @@ else
 fi
 
 echo
-echo -e "${BROWN}Note:${NC} image sizes include layers shared with other images, so they do not add up to the real total (see 'docker system df')."
+echo -e "${BROWN}Note:${NC} image sizes include layers shared with other images, so they do not add up to the real total (use --system for 'docker system df')."
 echo -e "${BROWN}To remove:${NC} ~/diskDockerUsage --remove <image> | --prune | --prune-unused | --guide (side effects)"
 echo
 print_success "Done!"
