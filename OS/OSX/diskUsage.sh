@@ -24,6 +24,8 @@ usage() {
     echo -e "  ${INDIGO}-o, --order ORDER${NC}      Sort order: desc | asc (default: desc)"
     echo -e "  ${INDIGO}-x, --exclude NAME${NC}     Exclude a file/folder name or pattern (repeatable), e.g. .git"
     echo -e "  ${INDIGO}-S, --sudo${NC}             Run with sudo (to read protected folders, e.g. /)"
+    echo -e "  ${INDIGO}-D, --docker [args]${NC}    Show Docker disk usage instead (hands off to IaC/Docker/diskDockerUsage.sh;"
+    echo -e "                            all remaining arguments are passed to it, e.g. --docker -n 5)"
     echo -e "  ${INDIGO}-h, --help${NC}             Show this help message"
     echo
     echo -e "${BROWN}Examples:${NC}"
@@ -34,6 +36,7 @@ usage() {
     echo -e "  ${AQUA}./diskUsage.sh -m all -n 50 -x .git .${NC}         # 50 largest files+folders, skipping .git"
     echo -e "  ${AQUA}./diskUsage.sh -o asc -n 10 .${NC}                 # 10 smallest folders"
     echo -e "  ${AQUA}./diskUsage.sh -S -d 2 -n 30 /${NC}                # Whole disk, 2 levels, top 30"
+    echo -e "  ${AQUA}./diskUsage.sh --docker -n 5${NC}                 # 5 largest Docker images (see --docker --help)"
     echo
 }
 
@@ -95,6 +98,15 @@ while [[ $# -gt 0 ]]; do
         -S|--sudo)
             USE_SUDO=true
             shift
+            ;;
+        -D|--docker)
+            shift
+            DOCKER_SCRIPT="${SCRIPTS_HOME}/IaC/Docker/diskDockerUsage.sh"
+            if [ ! -f "$DOCKER_SCRIPT" ]; then
+                print_error "Docker script not found: ${DOCKER_SCRIPT}"
+                exit 1
+            fi
+            exec bash "$DOCKER_SCRIPT" "$@"
             ;;
         -*)
             print_error "Unknown option: $1"

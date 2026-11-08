@@ -175,6 +175,7 @@ ln -fs "${GULP_DIR}/installer.sh" "${USER_HOME}/installer" && print_success "ins
 echo -e "${BLUEVIOLET}Docker Links${NC}"
 export DOCKER_DIR="${SCRIPTS_HOME}/IaC/Docker"
 ln -fs "${DOCKER_DIR}/buildDockerImage.sh" "${USER_HOME}/buildDockerImage" && print_success "buildDockerImage"
+ln -fs "${DOCKER_DIR}/diskDockerUsage.sh" "${USER_HOME}/diskDockerUsage" && print_success "diskDockerUsage"
 ln -fs "${DOCKER_DIR}/listDockerImages.sh" "${USER_HOME}/listDockerImages" && print_success "listDockerImages"
 ln -fs "${DOCKER_DIR}/sshDockerImage.sh" "${USER_HOME}/sshDockerImage" && print_success "sshDockerImage"
 
