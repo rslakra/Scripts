@@ -206,7 +206,7 @@ ln -fs "${GIT_DIR}/tagRemove.sh" "${USER_HOME}/tagRemove" && print_success "tagR
 # ----------------<SVN Links>----------------
 export SVN_DIR="${VCS_DIR}/SVN"
 echo -e "${INDIGO}  SVN Links${NC}"
-ln -fs "${SVN_DIR}/makeRepository.sh" "${USER_HOME}/makeRepository" && print_success "makeRepository"
+ln -fs "${SVN_DIR}/svn.sh" "${USER_HOME}/svn" && print_success "svn"
 
 # JDK Links
 echo -e "${BLUEVIOLET}JDK Links${NC}"
