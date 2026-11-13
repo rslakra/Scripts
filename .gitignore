@@ -1,15 +1,18 @@
-# These are some examples of commonly ignored file patterns.
-# You should customize this list as applicable to your project.
-# Learn more about .gitignore:
-#     https://www.atlassian.com/git/tutorials/saving-changes/gitignore
-# Scripts — the repository's one .gitignore.
+# The generic .gitignore.
 #
-# Scripts's own build and test leftovers plus a general-purpose set (Node, JVM, Gradle, Maven, Python,
-# IDEs, OS, media, secrets), merged into one list: sections A→Z, patterns A→Z within each section
+# A general-purpose set of ignore rules (Node, JVM, Gradle, Maven, Python, IDEs, OS, media, secrets,
+# build and test leftovers), merged into one list: sections A→Z, patterns A→Z within each section
 # (plain `LC_ALL=C sort`), no duplicates.
 #
 # The one exception to A→Z is the Exceptions section itself, which must stay last: in .gitignore the
 # last matching rule wins, and it re-includes files the rules above would otherwise hide.
+#
+# Learn more about .gitignore:
+#     https://www.atlassian.com/git/tutorials/saving-changes/gitignore
+
+### Celery ###
+celerybeat-schedule
+celerybeat.pid
 
 ### Claude Code (a shared .claude/settings.json can be committed) ###
 .claude/settings.local.json
@@ -18,9 +21,12 @@
 **/*.db
 **/*.db-*
 data/
+tests/*.db*
+
+### Django ###
 db.sqlite3
 db.sqlite3-journal
-tests/*.db*
+local_settings.py
 
 ### Eclipse and STS ###
 .apt_generated
@@ -40,10 +46,12 @@ tests/*.db*
 ENV/
 env.*/
 env/
-instance/
-local_settings.py
 venv.*/
 venv/
+
+### Flask ###
+.webassets-cache
+instance/
 
 ### Gradle (the wrapper is committed: see Exceptions) ###
 .gradle/
@@ -56,11 +64,15 @@ gradlew.bat
 charts/*.tgz
 
 ### IntelliJ plugin (this repository) ###
-jetbrains/.gradle/
-jetbrains/.intellijPlatform/
-jetbrains/.kotlin/
-jetbrains/build/
-jetbrains/src/main/resources/bundled/
+intellij/.gradle/
+intellij/.intellijPlatform/
+intellij/.kotlin/
+intellij/build/
+intellij/src/main/resources/bundled/
+
+### IPython ###
+ipython_config.py
+profile_default/
 
 ### Java, Kotlin and the JVM ###
 *.app
@@ -74,10 +86,16 @@ jetbrains/src/main/resources/bundled/
 [Oo]ut/
 
 ### JetBrains IDEs ###
+#   JetBrains (IntelliJ IDEA, PyCharm) keep a separate template at
+#   https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#   which can be added to the global gitignore or merged into this file.
 *.iml
 *.ipr
 *.iws
 .idea/
+
+### Jupyter Notebook ###
+.ipynb_checkpoints
 
 ### Logs and temporary files ###
 *.log
@@ -115,13 +133,13 @@ node_modules/
 [Tt]humbs.db
 
 ### Parth build and test leftovers ###
-#   /models/ and /results/ are project-root only: visualstudio/core/src/models/ is source code.
-#   visualstudio/vscode/media/webview.html is copied from visualstudio/webview-ui/dist by the extension build.
+#   /models/ and /results/ are project-root only: packages/core/src/models/ is source code.
+#   packages/vscode/media/webview.html is copied from packages/webview-ui/dist by the extension build.
 #   parth-conformance-* is what the conformance suite creates (and normally deletes) in the workspace under test.
 .parth/
 /models/
 /results/
-visualstudio/vscode/media/webview.html
+packages/vscode/media/webview.html
 parth-conformance-*
 
 ### Python — bytecode and C extensions ###
@@ -156,17 +174,6 @@ wheels/
 /site
 docs/_build/
 
-### Python — frameworks and notebooks ###
-*.sage.py
-.ipynb_checkpoints
-.ropeproject
-.scrapy
-.webassets-cache
-celerybeat-schedule
-celerybeat.pid
-ipython_config.py
-profile_default/
-
 ### Python — installer logs ###
 pip-delete-this-directory.txt
 pip-log.txt
@@ -187,9 +194,22 @@ coverage.xml
 htmlcov/
 nosetests.xml
 
-### Python — tooling: pdm, PEP 582, pybuilder ###
-#   pdm.lock, Pipfile.lock and poetry.lock are usually committed, so they aren't ignored here.
-#   .python-version: commit it for an application, ignore it for a library.
+### Python — tooling: pdm, PEP 582, pipenv, poetry, pybuilder, pyenv ###
+#   pdm.lock, Pipfile.lock and poetry.lock are usually committed, so they aren't ignored here
+#   (similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control).
+#   poetry.lock is especially recommended for binary packages to ensure reproducibility, and is
+#   more commonly ignored for libraries:
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
+#   in version control:
+#   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
+#   PEP 582 is used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm.
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#   .python-version: commit it for an application; for a library or package you might want to
+#   ignore it since the code is intended to run in multiple environments.
 .pdm-build/
 .pdm-python
 .pdm.toml
@@ -207,6 +227,15 @@ __pypackages__/
 .pytype/
 dmypy.json
 
+### Rope ###
+.ropeproject
+
+### SageMath ###
+*.sage.py
+
+### Scrapy ###
+.scrapy
+
 ### Secrets, keys and certificates ###
 #   DEPLOY.md creates private.pem and chain.crt; macOS signing uses a .p12.
 *.crt
@@ -215,8 +244,6 @@ dmypy.json
 *.pem
 *.pfx
 *.secret
-.secrets/
-env.sh
 secrets/
 
 ### Spyder ###
@@ -254,32 +281,3 @@ secrets/
 !**/gradlew.bat
 !.env.example
 !gradle-wrapper.properties
-
-# Applications
-*.app
-*.exe
-*.war
-
-# Large media files
-#*.mp4
-*.tiff
-*.avi
-*.flv
-*.mov
-*.wmv
-
-/**/.DS_Store
-/**/bin
-/**/classes
-/**/build
-/**/target
-/**/*.log
-/**/*.jar
-/**/.idea
-/**/*.zip
-/**/KeyPairs/
-/**/.metadata
-/**/node_modules
-/**/.log
-package-lock.json
-.mvn/
